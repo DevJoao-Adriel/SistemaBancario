@@ -7,6 +7,8 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 
 public class TelaPrincipalCorrente extends JPanel {
     private Banco banco;
@@ -30,6 +32,22 @@ public class TelaPrincipalCorrente extends JPanel {
         }else{
             desenharPainelSemConta(usuarioLogado);
         }
+
+        this.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentShown(ComponentEvent e) {
+                removeAll();
+
+                if (usuarioLogado.getContaCorrente() != null){
+                    desenharPainelComConta(usuarioLogado);
+                }else{
+                    desenharPainelSemConta(usuarioLogado);
+                }
+
+                revalidate();
+                repaint();
+            }
+        });
     }
 
     private void desenharPainelComConta(Usuario usuarioLogado){
@@ -370,4 +388,5 @@ public class TelaPrincipalCorrente extends JPanel {
         painelSemUsuario.add(btnCriarConta);
         add(painelSemUsuario, BorderLayout.CENTER);
     }
+
 }

@@ -7,6 +7,8 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 
 public class TelaPrincipalPoupanca extends JPanel {
     private Banco banco;
@@ -31,9 +33,24 @@ public class TelaPrincipalPoupanca extends JPanel {
         if (usuarioLogado.getContaPoupanca() != null){
             desenharPainelComConta(usuarioLogado);
         }else{
-            desenharpainelSemConta(usuarioLogado);
+            desenharPainelSemConta(usuarioLogado);
         }
 
+        this.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentShown(ComponentEvent e) {
+                removeAll();
+
+                if (usuarioLogado.getContaPoupanca() != null){
+                    desenharPainelComConta(usuarioLogado);
+                }else{
+                    desenharPainelSemConta(usuarioLogado);
+                }
+
+                revalidate();
+                repaint();
+            }
+        });
     }
 
     private void desenharPainelComConta(Usuario usuarioLogado){
@@ -328,7 +345,7 @@ public class TelaPrincipalPoupanca extends JPanel {
         add(painelRolagem, BorderLayout.CENTER);
     }
 
-    private void desenharpainelSemConta(Usuario usuarioLogado){
+    private void desenharPainelSemConta(Usuario usuarioLogado){
         painelSemUsuario = new JPanel();
         painelSemUsuario.setLayout(new BoxLayout(painelSemUsuario, BoxLayout.Y_AXIS));
         painelSemUsuario.setBorder(BorderFactory.createTitledBorder("Olá, " + usuarioLogado.getNome() + ", você não possui uma conta poupanca!"));
