@@ -292,6 +292,7 @@ public class TelaPrincipalCorrente extends JPanel {
         painelAcoes.add(btnDepositar);
         painelAcoes.add(btnSacar);
         painelAcoes.add(btnPix);
+        painelAcoes.add(btnGuardarPoupanca);
         painelContaCorrente.add(painelSaldo);
         painelContaCorrente.add(painelAcoes);
         add(painelContaCorrente, BorderLayout.NORTH);

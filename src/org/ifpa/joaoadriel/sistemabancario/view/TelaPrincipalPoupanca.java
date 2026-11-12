@@ -295,6 +295,7 @@ public class TelaPrincipalPoupanca extends JPanel {
         painelAcoes.add(btnDepositar);
         painelAcoes.add(btnSacar);
         painelAcoes.add(btnPix);
+        painelAcoes.add(btnGuardarCorrente);
         painelContaPoupanca.add(painelSaldo);
         painelContaPoupanca.add(painelAcoes);
         add(painelContaPoupanca, BorderLayout.NORTH);
