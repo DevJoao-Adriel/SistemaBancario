@@ -83,6 +83,11 @@ public class TelaConfiguracaoConta extends JPanel{
                     return;
                 }
 
+                if (banco.buscarContaPorPix(chavePixDigitada) != null) {
+                    JOptionPane.showMessageDialog(null, "Esta chave PIX já está em uso no banco. Escolha outra.", "[ERRO]", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
                 if (radioContaCorrente.isSelected()){
                     usuarioEmAndamento.abrirContaCorrente(chavePixDigitada, 0.0);
                 }else if (radioContaPoupanca.isSelected()){
