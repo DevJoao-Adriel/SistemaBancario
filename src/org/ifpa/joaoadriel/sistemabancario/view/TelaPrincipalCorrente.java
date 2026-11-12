@@ -107,7 +107,7 @@ public class TelaPrincipalCorrente extends JPanel {
                     if (opcao == JOptionPane.YES_OPTION) {
                         boolean sucesso = usuarioLogado.getContaCorrente().pix(contaDestino, valor);
                         if (sucesso){
-                            textoSaldo.setText("" + usuarioLogado.getContaCorrente().getSaldo());
+                            textoSaldo.setText("R$ " + usuarioLogado.getContaCorrente().getSaldo());
                             GerenciadorCSV.salvarContas(banco);
                             GerenciadorCSV.salvarExtrato(banco);
 
@@ -157,7 +157,7 @@ public class TelaPrincipalCorrente extends JPanel {
                         boolean sucesso = usuarioLogado.getContaCorrente().depositar(valor);
 
                         if (sucesso){
-                            textoSaldo.setText("" + usuarioLogado.getContaCorrente().getSaldo());
+                            textoSaldo.setText("R$ " + usuarioLogado.getContaCorrente().getSaldo());
                             GerenciadorCSV.salvarContas(banco);
                             GerenciadorCSV.salvarExtrato(banco);
 
@@ -208,7 +208,7 @@ public class TelaPrincipalCorrente extends JPanel {
                         boolean sucesso = usuarioLogado.getContaCorrente().sacar(valor);
 
                         if (sucesso){
-                            textoSaldo.setText("" + usuarioLogado.getContaCorrente().getSaldo());
+                            textoSaldo.setText("R$ " + usuarioLogado.getContaCorrente().getSaldo());
                             GerenciadorCSV.salvarContas(banco);
                             GerenciadorCSV.salvarExtrato(banco);
 
@@ -237,9 +237,53 @@ public class TelaPrincipalCorrente extends JPanel {
         btnGuardarPoupanca.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (usuarioLogado.getContaPoupanca() == null) JOptionPane.showMessageDialog(null, "Você não possui uma conta poupança para passar seu saldo", "[ERRO]", JOptionPane.ERROR_MESSAGE); return;
+                if (usuarioLogado.getContaPoupanca() == null) {
+                    JOptionPane.showMessageDialog(null, "Você não possui uma conta poupança para passar seu saldo", "[ERRO]", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                try {
+                    String valorDigitado = JOptionPane.showInputDialog(null, "Qual a quantia que você deseja mandar para sua conta poupança? ");
 
-                
+                    if (valorDigitado == null) {
+                        JOptionPane.showMessageDialog(null, "Digite  um valor numérico válido.", "[ERRO]", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+
+                    double valor = Double.parseDouble(valorDigitado);
+
+                    if (valor <= 0) {
+                        JOptionPane.showMessageDialog(null, "Digite um número válido! ", "[ERRO]", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+
+                    if (valor > usuarioLogado.getContaCorrente().getSaldo()) {
+                        JOptionPane.showMessageDialog(null, "Você não possui esse saldo", "[ERRO]", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+
+                    boolean sucesso = usuarioLogado.guardarNaPoupanca(valor);
+
+                    if (sucesso){
+                        textoSaldo.setText("R$ " + usuarioLogado.getContaCorrente().getSaldo());
+
+                        GerenciadorCSV.salvarContas(banco);
+                        GerenciadorCSV.salvarExtrato(banco);
+
+                        java.util.List<Transacao> extrato = usuarioLogado.getContaCorrente().getExtrato();
+                        Transacao ultimaTransacao = extrato.get(extrato.size() - 1);
+
+                        modeloTabela.addRow(new Object[]{
+                                ultimaTransacao.getData(),
+                                ultimaTransacao.getTipoOperacao(),
+                                ultimaTransacao.getValor(),
+                                ultimaTransacao.getOrigemDestino()
+                        });
+                    }
+
+
+                }catch (NumberFormatException ex){
+                    JOptionPane.showMessageDialog(null, "Por favor, digite um valor numérico válido.", "[ERRO]", JOptionPane.ERROR_MESSAGE);
+                }
             }
 
         });
