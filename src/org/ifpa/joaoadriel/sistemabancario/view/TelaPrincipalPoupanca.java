@@ -305,6 +305,7 @@ public class TelaPrincipalPoupanca extends JPanel {
         modeloTabela.addColumn("Data/Hora");
         modeloTabela.addColumn("Operação");
         modeloTabela.addColumn("Valor(R$)");
+        modeloTabela.addColumn("De / Para");
 
         for (Transacao transacaoAtual : usuarioLogado.getContaPoupanca().getExtrato()){
             modeloTabela.addRow(new Object[]{
