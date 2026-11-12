@@ -19,6 +19,7 @@ public class TelaPrincipalPoupanca extends JPanel {
     private JButton btnDepositar;
     private JButton btnSacar;
     private JButton btnCriarConta;
+    private JButton btnGuardarCorrente;
     private DefaultTableModel modeloTabela;
 
     public TelaPrincipalPoupanca(Banco banco, Usuario usuarioLogado, CardLayout controlador, JPanel painelCentro){
@@ -66,6 +67,7 @@ public class TelaPrincipalPoupanca extends JPanel {
         btnPix = new JButton("Pix");
         btnDepositar = new JButton("Depositar saldo");
         btnSacar = new JButton("Sacar saldo");
+        btnGuardarCorrente = new JButton("Passar para Corrente");
 
         btnPix.addActionListener(new ActionListener() {
             @Override
@@ -109,7 +111,7 @@ public class TelaPrincipalPoupanca extends JPanel {
                     if (opcao == JOptionPane.YES_OPTION) {
                         boolean sucesso = usuarioLogado.getContaPoupanca().pix(contaDestino, valor);
                         if (sucesso){
-                            textoSaldo.setText("" + usuarioLogado.getContaPoupanca().getSaldo());
+                            textoSaldo.setText("R$ " + usuarioLogado.getContaPoupanca().getSaldo());
                             GerenciadorCSV.salvarContas(banco);
                             GerenciadorCSV.salvarExtrato(banco);
 
@@ -159,7 +161,7 @@ public class TelaPrincipalPoupanca extends JPanel {
                         boolean sucesso = usuarioLogado.getContaPoupanca().depositar(valor);
 
                         if (sucesso){
-                            textoSaldo.setText("" + usuarioLogado.getContaPoupanca().getSaldo());
+                            textoSaldo.setText("R$ " + usuarioLogado.getContaPoupanca().getSaldo());
                             GerenciadorCSV.salvarContas(banco);
                             GerenciadorCSV.salvarExtrato(banco);
 
@@ -210,7 +212,7 @@ public class TelaPrincipalPoupanca extends JPanel {
                         boolean sucesso = usuarioLogado.getContaPoupanca().sacar(valor);
 
                         if (sucesso){
-                            textoSaldo.setText("" + usuarioLogado.getContaPoupanca().getSaldo());
+                            textoSaldo.setText("R$ " + usuarioLogado.getContaPoupanca().getSaldo());
                             GerenciadorCSV.salvarContas(banco);
                             GerenciadorCSV.salvarExtrato(banco);
 
@@ -230,6 +232,59 @@ public class TelaPrincipalPoupanca extends JPanel {
                             return;
                         }
                     }else return;
+                }catch (NumberFormatException ex){
+                    JOptionPane.showMessageDialog(null, "Por favor, digite um valor numérico válido.", "[ERRO]", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
+        btnGuardarCorrente.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (usuarioLogado.getContaCorrente() == null){
+                    JOptionPane.showMessageDialog(null, "Você não possui uma conta corrente para passar seu saldo", "[ERRO]", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                try{
+                    String valorDigitado = JOptionPane.showInputDialog("Qual a quantia que você deseja mandar para sua conta Corrente?");
+
+                    if (valorDigitado == null){
+                        JOptionPane.showMessageDialog(null, "Digite um valor númerico válido", "[ERRO]", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+
+                    double valor = Double.parseDouble(valorDigitado);
+
+                    if (valor <= 0){
+                        JOptionPane.showMessageDialog(null, "Digite um valor válido", "[ERRO]", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+
+                    if (valor > usuarioLogado.getContaPoupanca().getSaldo()){
+                        JOptionPane.showMessageDialog(null, "Você não possui esse saldo para passar para sua conta corrente!", "[ERRO]", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+
+                    boolean sucesso = usuarioLogado.resgatarDaPoupanca(valor);
+
+                    if (sucesso){
+                        textoSaldo.setText("R$ " + usuarioLogado.getContaPoupanca().getSaldo());
+
+                        GerenciadorCSV.salvarContas(banco);
+                        GerenciadorCSV.salvarExtrato(banco);
+
+                        java.util.List<Transacao> extrato = usuarioLogado.getContaPoupanca().getExtrato();
+                        Transacao ultimaTransacao = extrato.get(extrato.size() - 1);
+
+                        modeloTabela.addRow(new Object[]{
+                                ultimaTransacao.getData(),
+                                ultimaTransacao.getTipoOperacao(),
+                                ultimaTransacao.getValor(),
+                                ultimaTransacao.getOrigemDestino()
+                        });
+                    }
+
                 }catch (NumberFormatException ex){
                     JOptionPane.showMessageDialog(null, "Por favor, digite um valor numérico válido.", "[ERRO]", JOptionPane.ERROR_MESSAGE);
                 }
