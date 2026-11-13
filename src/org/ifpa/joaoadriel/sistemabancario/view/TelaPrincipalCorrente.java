@@ -366,6 +366,11 @@ public class TelaPrincipalCorrente extends JPanel {
                     return;
                 }
 
+                if (banco.buscarContaPorPix(chavePix) != null) {
+                    JOptionPane.showMessageDialog(null, "Esta chave PIX já está em uso no banco. Escolha outra.", "[ERRO]", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
                 boolean sucesso = usuarioLogado.abrirContaCorrente(chavePix, 0.0);
 
                 if (sucesso) {

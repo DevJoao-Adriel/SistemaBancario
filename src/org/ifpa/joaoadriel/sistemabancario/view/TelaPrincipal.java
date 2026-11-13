@@ -13,8 +13,12 @@ public class TelaPrincipal extends JFrame {
     private Usuario usuarioLogado;
     private JPanel painelCima;
     private JPanel painelCentro;
+    private JPanel painelBtnCentro;
+    private JPanel painelBtnDireita;
+    private JPanel painelFantasmaEsquerda;
     private JButton btnContaCorrente;
     private JButton btnContaPoupanca;
+    private JButton btnSairConta;
     private CardLayout controlador;
 
     public TelaPrincipal(Banco banco, Usuario usuarioLogado) {
@@ -28,15 +32,33 @@ public class TelaPrincipal extends JFrame {
         setLayout(new BorderLayout());
 
         painelCima = new JPanel();
-        painelCima.setLayout(new FlowLayout());
+        painelCima.setLayout(new BorderLayout());
         painelCima.setBackground(Color.DARK_GRAY);
+
+        painelBtnCentro = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        painelBtnCentro.setOpaque(false);
+
+        painelBtnDireita = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        painelBtnDireita.setOpaque(false);
+        painelBtnDireita.setPreferredSize(new Dimension(150, 40));
+
+        painelFantasmaEsquerda = new JPanel();
+        painelFantasmaEsquerda.setOpaque(false);
+        painelFantasmaEsquerda.setPreferredSize(new Dimension(150, 40));
 
         btnContaCorrente = new JButton("Conta Corrente");
         btnContaPoupanca = new JButton("Conta Poupança");
+        btnSairConta = new JButton("Sair da sua conta");
 
-        painelCima.add(btnContaCorrente);
-        painelCima.add(btnContaPoupanca);
-        painelCima.setAlignmentX(Component.CENTER_ALIGNMENT);
+        painelBtnCentro.add(btnContaCorrente);
+        painelBtnCentro.add(btnContaPoupanca);
+        painelBtnCentro.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        painelBtnDireita.add(btnSairConta);
+
+        painelCima.add(painelFantasmaEsquerda, BorderLayout.WEST);
+        painelCima.add(painelBtnCentro, BorderLayout.CENTER);
+        painelCima.add(painelBtnDireita, BorderLayout.EAST);
 
         add(painelCima, BorderLayout.NORTH);
 
@@ -63,6 +85,17 @@ public class TelaPrincipal extends JFrame {
                 controlador.show(painelCentro, "telaPrincipalPoupanca");
             }
         });
+
+        btnSairConta.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                TelaInicial telaInicial = new TelaInicial(banco);
+                telaInicial.setVisible(true);
+
+                TelaPrincipal.this.dispose();
+            }
+        });
+
         add(painelCentro, BorderLayout.CENTER);
     }
 }
