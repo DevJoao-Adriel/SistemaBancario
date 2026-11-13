@@ -4,7 +4,7 @@ import org.ifpa.joaoadriel.sistemabancario.domain.Banco;
 import org.ifpa.joaoadriel.sistemabancario.domain.Usuario;
 
 import javax.swing.*;
-import javax.swing.border.Border;
+import javax.swing.border.TitledBorder;
 import javax.swing.text.MaskFormatter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -17,18 +17,27 @@ public class TelaLogin extends JPanel{
     private JPasswordField senha;
     private JButton botaoLogin;
     private JPanel painelFormulario;
-    private TelaPrincipal telaPrincipal;
 
     public TelaLogin (Banco banco){
         this.banco = banco;
 
         setLayout(new GridBagLayout());
 
+        Font fonteGeral = new Font("Arial", Font.PLAIN, 16);
+        Font fonteBotao = new Font("Arial", Font.BOLD, 14);
+
         painelFormulario = new JPanel();
         painelFormulario.setLayout(new BoxLayout(painelFormulario, BoxLayout.Y_AXIS));
-        painelFormulario.setBorder(BorderFactory.createTitledBorder("Tela de Cadastro"));
+
+        TitledBorder bordaTitulo = BorderFactory.createTitledBorder("Tela de Login");
+        bordaTitulo.setTitleFont(new Font("Arial", Font.BOLD, 18));
+        painelFormulario.setBorder(BorderFactory.createCompoundBorder(
+                bordaTitulo,
+                BorderFactory.createEmptyBorder(30, 40, 30, 40) // Margens internas (Cima, Esquerda, Baixo, Direita)
+        ));
 
         JLabel textoCpf = new JLabel("Digite seu CPF: ");
+        textoCpf.setFont(fonteGeral);
         textoCpf.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         try {
@@ -36,22 +45,24 @@ public class TelaLogin extends JPanel{
             mascaraCpf.setPlaceholderCharacter('_');
             cpf = new JFormattedTextField(mascaraCpf);
             cpf.setFocusLostBehavior(JFormattedTextField.PERSIST);
+            cpf.setFont(fonteGeral);
             cpf.setAlignmentX(Component.CENTER_ALIGNMENT);
-            cpf.setColumns(14);
-
+            cpf.setColumns(15);
         }catch (ParseException e){
             cpf = new JFormattedTextField();
             JOptionPane.showMessageDialog(null, "Erro ao validar o CPF: "+ e.getMessage(), "[ERRO]", JOptionPane.ERROR_MESSAGE);
         }
 
         JLabel textoSenha = new JLabel("Digite sua senha: ");
+        textoSenha.setFont(fonteGeral);
         textoSenha.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         senha = new JPasswordField(15);
+        senha.setFont(fonteGeral);
         senha.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-
         botaoLogin = new JButton("Fazer login");
+        botaoLogin.setFont(fonteBotao);
         botaoLogin.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         cpf.addActionListener(new ActionListener() {
@@ -82,7 +93,7 @@ public class TelaLogin extends JPanel{
                 Usuario usuarioLogado = banco.buscarPorCpf(cpfDigitado);
 
                 if ((usuarioLogado != null) && (senhaDigitada.equals(usuarioLogado.getSenha()))){
-                    telaPrincipal = new TelaPrincipal(banco, usuarioLogado);
+                    TelaPrincipal telaPrincipal = new TelaPrincipal(banco, usuarioLogado);
                     telaPrincipal.setVisible(true);
                     SwingUtilities.getWindowAncestor(TelaLogin.this).dispose();
                     limparDados();
@@ -95,9 +106,13 @@ public class TelaLogin extends JPanel{
         });
 
         painelFormulario.add(textoCpf);
+        painelFormulario.add(Box.createRigidArea(new Dimension(0, 5)));
         painelFormulario.add(cpf);
+        painelFormulario.add(Box.createRigidArea(new Dimension(0, 15)));
         painelFormulario.add(textoSenha);
+        painelFormulario.add(Box.createRigidArea(new Dimension(0, 5)));
         painelFormulario.add(senha);
+        painelFormulario.add(Box.createRigidArea(new Dimension(0, 25)));
         painelFormulario.add(botaoLogin);
         add(painelFormulario);
     }

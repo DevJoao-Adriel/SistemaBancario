@@ -1,10 +1,10 @@
 package org.ifpa.joaoadriel.sistemabancario.view;
 
 import org.ifpa.joaoadriel.sistemabancario.domain.Banco;
-import org.ifpa.joaoadriel.sistemabancario.domain.GerenciadorCSV;
 import org.ifpa.joaoadriel.sistemabancario.domain.Usuario;
 
 import javax.swing.*;
+import javax.swing.border.TitledBorder;
 import javax.swing.text.MaskFormatter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -31,16 +31,29 @@ public class TelaCadastro extends JPanel{
 
         setLayout(new GridBagLayout());
 
+        Font fonteGeral = new Font("Arial", Font.PLAIN, 16);
+        Font fonteBotao = new Font("Arial", Font.BOLD, 14);
+
         painelFormulario = new JPanel();
         painelFormulario.setLayout(new BoxLayout(painelFormulario, BoxLayout.Y_AXIS));
-        painelFormulario.setBorder(BorderFactory.createTitledBorder("Tela de Cadastro"));
+
+        TitledBorder bordaTitulo = BorderFactory.createTitledBorder("Tela de Cadastro");
+        bordaTitulo.setTitleFont(new Font("Arial", Font.BOLD, 18));
+        painelFormulario.setBorder(BorderFactory.createCompoundBorder(
+                bordaTitulo,
+                BorderFactory.createEmptyBorder(20, 40, 20, 40)
+        ));
+
         JLabel textoNome = new JLabel("Digite seu nome: ");
+        textoNome.setFont(fonteGeral);
         textoNome.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         nome = new JTextField(15);
+        nome.setFont(fonteGeral);
         nome.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JLabel textoCpf = new JLabel("Digite seu CPF: ");
+        textoCpf.setFont(fonteGeral);
         textoCpf.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         try {
@@ -48,8 +61,9 @@ public class TelaCadastro extends JPanel{
             mascaraCpf.setPlaceholderCharacter('_');
             cpf = new JFormattedTextField(mascaraCpf);
             cpf.setFocusLostBehavior(JFormattedTextField.PERSIST);
+            cpf.setFont(fonteGeral);
             cpf.setAlignmentX(Component.CENTER_ALIGNMENT);
-            cpf.setColumns(14);
+            cpf.setColumns(15);
 
         } catch (ParseException e){
             cpf = new JFormattedTextField();
@@ -57,18 +71,23 @@ public class TelaCadastro extends JPanel{
         }
 
         JLabel textoSenha = new JLabel("Digite uma senha: ");
+        textoSenha.setFont(fonteGeral);
         textoSenha.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         senha = new JPasswordField(15);
+        senha.setFont(fonteGeral);
         senha.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JLabel textoRepeteSenha = new JLabel("Repita a senha novamente: ");
+        textoRepeteSenha.setFont(fonteGeral);
         textoRepeteSenha.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         senhaRepetida = new JPasswordField(15);
+        senhaRepetida.setFont(fonteGeral);
         senhaRepetida.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         botaoCadastrar = new JButton("Criar conta");
+        botaoCadastrar.setFont(fonteBotao);
         botaoCadastrar.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         nome.addActionListener(new ActionListener() {
@@ -144,13 +163,21 @@ public class TelaCadastro extends JPanel{
         });
 
         painelFormulario.add(textoNome);
+        painelFormulario.add(Box.createRigidArea(new Dimension(0, 5)));
         painelFormulario.add(nome);
+        painelFormulario.add(Box.createRigidArea(new Dimension(0, 10)));
         painelFormulario.add(textoCpf);
+        painelFormulario.add(Box.createRigidArea(new Dimension(0, 5)));
         painelFormulario.add(cpf);
+        painelFormulario.add(Box.createRigidArea(new Dimension(0, 10)));
         painelFormulario.add(textoSenha);
+        painelFormulario.add(Box.createRigidArea(new Dimension(0, 5)));
         painelFormulario.add(senha);
+        painelFormulario.add(Box.createRigidArea(new Dimension(0, 10)));
         painelFormulario.add(textoRepeteSenha);
+        painelFormulario.add(Box.createRigidArea(new Dimension(0, 5)));
         painelFormulario.add(senhaRepetida);
+        painelFormulario.add(Box.createRigidArea(new Dimension(0, 20)));
         painelFormulario.add(botaoCadastrar);
         add(painelFormulario);
     }

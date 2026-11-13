@@ -18,7 +18,7 @@ public class TelaInicial extends JFrame {
         this.banco = banco;
 
         setTitle("Sistema bancário");
-        setExtendedState(JFrame.MAXIMIZED_BOTH);
+        setSize(600,400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());

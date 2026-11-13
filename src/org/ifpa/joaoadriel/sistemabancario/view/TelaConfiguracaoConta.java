@@ -5,6 +5,7 @@ import org.ifpa.joaoadriel.sistemabancario.domain.GerenciadorCSV;
 import org.ifpa.joaoadriel.sistemabancario.domain.Usuario;
 
 import javax.swing.*;
+import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -33,18 +34,30 @@ public class TelaConfiguracaoConta extends JPanel{
 
         setLayout(new GridBagLayout());
 
+        Font fonteGeral = new Font("Arial", Font.PLAIN, 16);
+        Font fonteBotao = new Font("Arial", Font.BOLD, 14);
+
         painelFormulario = new JPanel();
         painelFormulario.setLayout(new BoxLayout(painelFormulario, BoxLayout.Y_AXIS));
-        painelFormulario.setBorder(BorderFactory.createTitledBorder("Tela de Cadastro"));
+
+        TitledBorder bordaTitulo = BorderFactory.createTitledBorder("Configuração da Conta");
+        bordaTitulo.setTitleFont(new Font("Arial", Font.BOLD, 18));
+        painelFormulario.setBorder(BorderFactory.createCompoundBorder(
+                bordaTitulo,
+                BorderFactory.createEmptyBorder(30, 40, 30, 40)
+        ));
 
         JLabel tipoConta = new JLabel("Selecione o tipo de conta que deseja criar: ");
+        tipoConta.setFont(fonteGeral);
         tipoConta.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         radioContaCorrente = new JRadioButton("Conta Corrente");
+        radioContaCorrente.setFont(fonteGeral);
         radioContaCorrente.setAlignmentX(Component.CENTER_ALIGNMENT);
         radioContaCorrente.setSelected(true);
 
         radioContaPoupanca = new JRadioButton("Conta Poupança");
+        radioContaPoupanca.setFont(fonteGeral);
         radioContaPoupanca.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         ButtonGroup grupoRadioTipoConta = new ButtonGroup();
@@ -52,16 +65,20 @@ public class TelaConfiguracaoConta extends JPanel{
         grupoRadioTipoConta.add(radioContaPoupanca);
 
         JLabel labelChavePix = new JLabel("Crie uma chave pix para você: ");
+        labelChavePix.setFont(fonteGeral);
         labelChavePix.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         chavePix = new JTextField(15);
+        chavePix.setFont(fonteGeral);
         chavePix.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         painelBotoes = new JPanel();
-        painelBotoes.setLayout(new FlowLayout());
+        painelBotoes.setLayout(new FlowLayout(FlowLayout.CENTER, 20, 0));
 
         botaoCriarConta = new JButton("Criar conta");
+        botaoCriarConta.setFont(fonteBotao);
         botaoVoltar = new JButton("Voltar");
+        botaoVoltar.setFont(fonteBotao);
 
         painelBotoes.add(botaoCriarConta);
         painelBotoes.add(botaoVoltar);
@@ -110,10 +127,14 @@ public class TelaConfiguracaoConta extends JPanel{
         });
 
         painelFormulario.add(tipoConta);
+        painelFormulario.add(Box.createRigidArea(new Dimension(0, 10)));
         painelFormulario.add(radioContaCorrente);
         painelFormulario.add(radioContaPoupanca);
+        painelFormulario.add(Box.createRigidArea(new Dimension(0, 20)));
         painelFormulario.add(labelChavePix);
+        painelFormulario.add(Box.createRigidArea(new Dimension(0, 5)));
         painelFormulario.add(chavePix);
+        painelFormulario.add(Box.createRigidArea(new Dimension(0, 25)));
         painelFormulario.add(painelBotoes);
         add(painelFormulario);
     }
