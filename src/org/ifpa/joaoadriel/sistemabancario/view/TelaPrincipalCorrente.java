@@ -24,9 +24,15 @@ public class TelaPrincipalCorrente extends JPanel {
     private JButton btnGuardarPoupanca;
     private DefaultTableModel modeloTabela;
 
+    private final Color azulBanco = new Color(30, 58, 95);
+    private final Color fundoClaro = new Color(244, 246, 249);
+    private final Color verdePositivo = new Color(25, 135, 84);
+    private final Color vermelhoNegativo = new Color(220, 53, 69);
+
     public TelaPrincipalCorrente(Banco banco, Usuario usuarioLogado, CardLayout controlador, JPanel painelCentro) {
         this.banco = banco;
         setLayout(new BorderLayout());
+        setBackground(fundoClaro);
 
         if (usuarioLogado.getContaCorrente() != null) {
             desenharPainelComConta(usuarioLogado);
@@ -51,14 +57,21 @@ public class TelaPrincipalCorrente extends JPanel {
         });
     }
 
+    private void estilizarBotaoAcao(JButton botao, Color corFundo, Color corTexto) {
+        botao.setFont(new Font("SansSerif", Font.BOLD, 13));
+        botao.setBackground(corFundo);
+        botao.setForeground(corTexto);
+        botao.setFocusPainted(false);
+    }
+
     private void atualizarExibicaoSaldo(ContaCorrente cc, JLabel textoSaldo, JLabel textoLimite) {
         double saldoAtual = cc.getSaldo();
         textoSaldo.setText(String.format("R$ %.2f", saldoAtual));
 
         if (saldoAtual < 0) {
-            textoSaldo.setForeground(new Color(200, 40, 40));
+            textoSaldo.setForeground(vermelhoNegativo);
         } else {
-            textoSaldo.setForeground(Color.BLACK);
+            textoSaldo.setForeground(verdePositivo);
         }
 
         textoLimite.setText(String.format("Cheque Especial Disponível: R$ %.2f (Limite Total: R$ %.2f)",
@@ -71,42 +84,55 @@ public class TelaPrincipalCorrente extends JPanel {
 
         painelContaCorrente = new JPanel();
         painelContaCorrente.setLayout(new BoxLayout(painelContaCorrente, BoxLayout.Y_AXIS));
+        painelContaCorrente.setBackground(fundoClaro);
+        painelContaCorrente.setBorder(BorderFactory.createEmptyBorder(15, 25, 10, 25));
 
-        javax.swing.border.TitledBorder bordaCima = BorderFactory.createTitledBorder("Olá, " + usuarioLogado.getNome() + ", esta é sua Conta Corrente");
-        bordaCima.setTitleFont(new Font("Arial", Font.ITALIC, 16));
-
-        painelContaCorrente.setBorder(bordaCima);
+        JLabel tituloBoasVindas = new JLabel("Olá, " + usuarioLogado.getNome() + " — Conta Corrente");
+        tituloBoasVindas.setFont(new Font("SansSerif", Font.BOLD, 18));
+        tituloBoasVindas.setForeground(azulBanco);
+        tituloBoasVindas.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         painelSaldo = new JPanel();
         painelSaldo.setLayout(new BoxLayout(painelSaldo, BoxLayout.Y_AXIS));
+        painelSaldo.setBackground(Color.WHITE);
 
-        javax.swing.border.TitledBorder bordaSaldo = BorderFactory.createTitledBorder("Seu saldo");
-        bordaSaldo.setTitleFont(new Font("Arial", Font.ITALIC, 16));
+        javax.swing.border.TitledBorder bordaSaldo = BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(new Color(203, 213, 225), 1),
+                "Saldo em Conta"
+        );
+        bordaSaldo.setTitleFont(new Font("SansSerif", Font.BOLD, 14));
+        bordaSaldo.setTitleColor(azulBanco);
 
         painelSaldo.setBorder(bordaSaldo);
         painelSaldo.setAlignmentX(Component.CENTER_ALIGNMENT);
-        painelSaldo.setPreferredSize(new Dimension(Integer.MAX_VALUE, 100));
-        painelSaldo.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
+        painelSaldo.setPreferredSize(new Dimension(Integer.MAX_VALUE, 105));
+        painelSaldo.setMaximumSize(new Dimension(Integer.MAX_VALUE, 105));
 
         JLabel textoSaldo = new JLabel();
-        textoSaldo.setFont(new Font("Arial", Font.BOLD, 32));
+        textoSaldo.setFont(new Font("SansSerif", Font.BOLD, 34));
         textoSaldo.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JLabel textoLimite = new JLabel();
-        textoLimite.setFont(new Font("Arial", Font.PLAIN, 14));
-        textoLimite.setForeground(new Color(80, 80, 80));
+        textoLimite.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        textoLimite.setForeground(new Color(100, 116, 139));
         textoLimite.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         atualizarExibicaoSaldo(cc, textoSaldo, textoLimite);
 
         painelAcoes = new JPanel();
-        painelAcoes.setLayout(new FlowLayout());
+        painelAcoes.setLayout(new FlowLayout(FlowLayout.CENTER, 12, 12));
+        painelAcoes.setBackground(fundoClaro);
         painelAcoes.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        btnPix = new JButton("Pix");
-        btnDepositar = new JButton("Depositar saldo");
-        btnSacar = new JButton("Sacar saldo (essa opção possui acréscimo de R$ 1,00)");
-        btnGuardarPoupanca = new JButton("Passar para Poupança");
+        btnDepositar = new JButton("Depositar");
+        btnSacar = new JButton("Sacar (taxa R$ 1,00)");
+        btnPix = new JButton("Fazer Pix");
+        btnGuardarPoupanca = new JButton("Guardar na Poupança");
+
+        estilizarBotaoAcao(btnDepositar, verdePositivo, Color.WHITE);
+        estilizarBotaoAcao(btnSacar, azulBanco, Color.WHITE);
+        estilizarBotaoAcao(btnPix, azulBanco, Color.WHITE);
+        estilizarBotaoAcao(btnGuardarPoupanca, new Color(13, 110, 253), Color.WHITE);
 
         btnPix.addActionListener(new ActionListener() {
             @Override
@@ -346,7 +372,11 @@ public class TelaPrincipalCorrente extends JPanel {
         painelAcoes.add(btnSacar);
         painelAcoes.add(btnPix);
         painelAcoes.add(btnGuardarPoupanca);
+
+        painelContaCorrente.add(tituloBoasVindas);
+        painelContaCorrente.add(Box.createRigidArea(new Dimension(0, 12)));
         painelContaCorrente.add(painelSaldo);
+        painelContaCorrente.add(Box.createRigidArea(new Dimension(0, 5)));
         painelContaCorrente.add(painelAcoes);
         add(painelContaCorrente, BorderLayout.NORTH);
 
@@ -371,27 +401,54 @@ public class TelaPrincipalCorrente extends JPanel {
         }
 
         JTable tabelaExtrato = new JTable(modeloTabela);
-        tabelaExtrato.setRowHeight(60);
+        tabelaExtrato.setRowHeight(36);
+        tabelaExtrato.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        tabelaExtrato.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 14));
+        tabelaExtrato.getTableHeader().setBackground(azulBanco);
+        tabelaExtrato.getTableHeader().setForeground(Color.WHITE);
 
         JScrollPane painelRolagem = new JScrollPane(tabelaExtrato);
+        painelRolagem.setBackground(Color.WHITE);
 
-        javax.swing.border.TitledBorder bordaExtrato = BorderFactory.createTitledBorder("Histórico de transações");
-        bordaExtrato.setTitleFont(new Font("Arial", Font.ITALIC, 16));
+        javax.swing.border.TitledBorder bordaExtrato = BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(new Color(203, 213, 225), 1),
+                "Histórico de Transações"
+        );
+        bordaExtrato.setTitleFont(new Font("SansSerif", Font.BOLD, 15));
+        bordaExtrato.setTitleColor(azulBanco);
 
+        JPanel containerTabela = new JPanel(new BorderLayout());
+        containerTabela.setBackground(fundoClaro);
+        containerTabela.setBorder(BorderFactory.createEmptyBorder(0, 25, 20, 25));
         painelRolagem.setBorder(bordaExtrato);
+        containerTabela.add(painelRolagem, BorderLayout.CENTER);
 
-        add(painelRolagem, BorderLayout.CENTER);
+        add(containerTabela, BorderLayout.CENTER);
     }
 
     private void desenharPainelSemConta(Usuario usuarioLogado) {
         painelSemUsuario = new JPanel();
         painelSemUsuario.setLayout(new BoxLayout(painelSemUsuario, BoxLayout.Y_AXIS));
-        painelSemUsuario.setBorder(BorderFactory.createTitledBorder("Olá, " + usuarioLogado.getNome() + ", você não possui uma conta corrente."));
+        painelSemUsuario.setBackground(Color.WHITE);
 
-        JLabel textoCriarConta = new JLabel("Deseja criar uma conta corrente? ");
+        javax.swing.border.TitledBorder borda = BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(new Color(203, 213, 225), 1),
+                "Conta Corrente não ativada"
+        );
+        borda.setTitleFont(new Font("SansSerif", Font.BOLD, 16));
+        borda.setTitleColor(azulBanco);
+
+        painelSemUsuario.setBorder(BorderFactory.createCompoundBorder(
+                borda,
+                BorderFactory.createEmptyBorder(30, 40, 30, 40)
+        ));
+
+        JLabel textoCriarConta = new JLabel("Olá, " + usuarioLogado.getNome() + "! Você ainda não possui uma Conta Corrente.");
+        textoCriarConta.setFont(new Font("SansSerif", Font.PLAIN, 15));
         textoCriarConta.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        btnCriarConta = new JButton("Criar conta corrente");
+        btnCriarConta = new JButton("Abrir Conta Corrente Agora");
+        estilizarBotaoAcao(btnCriarConta, verdePositivo, Color.WHITE);
         btnCriarConta.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         btnCriarConta.addActionListener(new ActionListener() {
@@ -427,14 +484,19 @@ public class TelaPrincipalCorrente extends JPanel {
                     desenharPainelComConta(usuarioLogado);
                     revalidate();
                     repaint();
-
                 } else {
                     JOptionPane.showMessageDialog(null, "Já possui uma conta corrente!", "[ERRO]", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
+
         painelSemUsuario.add(textoCriarConta);
+        painelSemUsuario.add(Box.createRigidArea(new Dimension(0, 15)));
         painelSemUsuario.add(btnCriarConta);
-        add(painelSemUsuario, BorderLayout.CENTER);
+
+        JPanel centralizador = new JPanel(new GridBagLayout());
+        centralizador.setBackground(fundoClaro);
+        centralizador.add(painelSemUsuario);
+        add(centralizador, BorderLayout.CENTER);
     }
 }

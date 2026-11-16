@@ -27,6 +27,10 @@ public class TelaPrincipal extends JFrame {
         this.banco = banco;
         this.usuarioLogado = usuarioLogado;
 
+        Color azulBanco = new Color(30, 58, 95);
+        Color vermelhoAlerta = new Color(220, 53, 69);
+        Color fundoClaro = new Color(244, 246, 249);
+
         setTitle("Sistema Bancário");
         setExtendedState(MAXIMIZED_BOTH);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -35,34 +39,49 @@ public class TelaPrincipal extends JFrame {
 
         painelCima = new JPanel();
         painelCima.setLayout(new BorderLayout());
-        painelCima.setBackground(Color.DARK_GRAY);
+        painelCima.setBackground(azulBanco);
+        painelCima.setBorder(BorderFactory.createEmptyBorder(6, 12, 6, 12));
 
         painelBtnEsquerda = new JPanel(new FlowLayout(FlowLayout.LEFT));
         painelBtnEsquerda.setOpaque(false);
-        painelBtnEsquerda.setPreferredSize(new Dimension(160, 40));
+        painelBtnEsquerda.setPreferredSize(new Dimension(180, 42));
 
-        painelBtnCentro = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        painelBtnCentro = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 5));
         painelBtnCentro.setOpaque(false);
 
         painelBtnDireita = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         painelBtnDireita.setOpaque(false);
-        painelBtnDireita.setPreferredSize(new Dimension(160, 40));
+        painelBtnDireita.setPreferredSize(new Dimension(180, 42));
+
+        Font fonteNav = new Font("SansSerif", Font.BOLD, 14);
 
         btnDeletarConta = new JButton("Deletar Contas");
-        btnContaCorrente = new JButton("Conta Corrente");
-        btnContaPoupanca = new JButton("Conta Poupança");
-        btnSairConta = new JButton("Sair da sua conta");
-
-        btnDeletarConta.setBackground(new Color(200, 40, 40));
+        btnDeletarConta.setFont(fonteNav);
+        btnDeletarConta.setBackground(vermelhoAlerta);
         btnDeletarConta.setForeground(Color.WHITE);
         btnDeletarConta.setFocusPainted(false);
-        btnDeletarConta.setOpaque(true);
+
+        btnContaCorrente = new JButton("Conta Corrente");
+        btnContaCorrente.setFont(fonteNav);
+        btnContaCorrente.setBackground(Color.WHITE);
+        btnContaCorrente.setForeground(azulBanco);
+        btnContaCorrente.setFocusPainted(false);
+
+        btnContaPoupanca = new JButton("Conta Poupança");
+        btnContaPoupanca.setFont(fonteNav);
+        btnContaPoupanca.setBackground(Color.WHITE);
+        btnContaPoupanca.setForeground(azulBanco);
+        btnContaPoupanca.setFocusPainted(false);
+
+        btnSairConta = new JButton("Sair da Conta");
+        btnSairConta.setFont(fonteNav);
+        btnSairConta.setBackground(new Color(226, 232, 240));
+        btnSairConta.setForeground(azulBanco);
+        btnSairConta.setFocusPainted(false);
 
         painelBtnEsquerda.add(btnDeletarConta);
-
         painelBtnCentro.add(btnContaCorrente);
         painelBtnCentro.add(btnContaPoupanca);
-
         painelBtnDireita.add(btnSairConta);
 
         painelCima.add(painelBtnEsquerda, BorderLayout.WEST);
@@ -73,6 +92,7 @@ public class TelaPrincipal extends JFrame {
 
         controlador = new CardLayout();
         painelCentro = new JPanel(controlador);
+        painelCentro.setBackground(fundoClaro);
 
         TelaPrincipalCorrente telaPrincipalCorrente = new TelaPrincipalCorrente(banco, usuarioLogado, controlador, painelCentro);
         TelaPrincipalPoupanca telaPrincipalPoupanca = new TelaPrincipalPoupanca(banco, usuarioLogado, controlador, painelCentro);
@@ -83,7 +103,6 @@ public class TelaPrincipal extends JFrame {
         btnDeletarConta.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
                 boolean temSaldoCorrente = (usuarioLogado.getContaCorrente() != null) && (Math.abs(usuarioLogado.getContaCorrente().getSaldo()) >= 0.01);
                 boolean temSaldoPoupanca = (usuarioLogado.getContaPoupanca() != null) && (Math.abs(usuarioLogado.getContaPoupanca().getSaldo()) >= 0.01);
 
