@@ -56,25 +56,22 @@ public class ContaPoupanca extends Conta{
     public double simularRendimento(){
         double novoSaldo;
 
-        if (this.saldo == 0) return 0;
-
-        if ((this.getSaldo() >= 1) && (this.getSaldo() < 1000)){
+        if (this.saldo <= 0) {
+            return 0;
+        }else if (this.getSaldo() < 1000){
             novoSaldo = this.saldo * 0.01;
-
-            this.saldo += novoSaldo;
-            return this.saldo;
+        }else if ((this.getSaldo() >= 1000) && (this.getSaldo() < 10000)){
+            novoSaldo = this.saldo * 0.05;
+        }else {
+            novoSaldo = this.saldo * 0.1;
         }
-       if ((this.getSaldo() >= 1000) && (this.getSaldo() < 10000)){
-           novoSaldo = this.saldo * 0.05;
 
-           this.saldo += novoSaldo;
-           return this.saldo;
-       }
+        this.saldo += novoSaldo;
+        LocalDateTime dataAtual = LocalDateTime.now();
+        Transacao transacaoRecebida = new Transacao(dataAtual, "Rendimento recebido", novoSaldo, "Conta Poupança");
+        this.adicionarTransacao(transacaoRecebida);
 
-       novoSaldo = this.saldo * 0.1;
-
-       this.saldo += novoSaldo;
-       return this.saldo;
+        return this.saldo;
     }
 }
 

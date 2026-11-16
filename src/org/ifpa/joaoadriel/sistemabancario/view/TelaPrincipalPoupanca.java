@@ -22,6 +22,7 @@ public class TelaPrincipalPoupanca extends JPanel {
     private JButton btnSacar;
     private JButton btnCriarConta;
     private JButton btnGuardarCorrente;
+    private JButton btnSimularRendimento;
     private DefaultTableModel modeloTabela;
 
     public TelaPrincipalPoupanca(Banco banco, Usuario usuarioLogado, CardLayout controlador, JPanel painelCentro){
@@ -85,6 +86,7 @@ public class TelaPrincipalPoupanca extends JPanel {
         btnDepositar = new JButton("Depositar saldo");
         btnSacar = new JButton("Sacar saldo");
         btnGuardarCorrente = new JButton("Passar para Corrente");
+        btnSimularRendimento = new JButton("Simular rendimento (1 mês)");
 
         btnPix.addActionListener(new ActionListener() {
             @Override
@@ -308,11 +310,43 @@ public class TelaPrincipalPoupanca extends JPanel {
             }
         });
 
+        btnSimularRendimento.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                if (usuarioLogado.getContaPoupanca().getSaldo() <= 0){
+                    JOptionPane.showMessageDialog(null, "Você não pode fazer uma simulação pois não possui saldo", "Aviso", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+
+                int resp = JOptionPane.showConfirmDialog(null, "Deseja simular um rendimento de 1 mês?", "Rendimento", JOptionPane.YES_NO_OPTION);
+
+                if (resp == JOptionPane.YES_OPTION){
+                    usuarioLogado.getContaPoupanca().simularRendimento();
+                    textoSaldo.setText("R$ " + usuarioLogado.getContaPoupanca().getSaldo());
+
+                    GerenciadorCSV.salvarContas(banco);
+                    GerenciadorCSV.salvarExtrato(banco);
+
+                    java.util.List<Transacao> extrato = usuarioLogado.getContaPoupanca().getExtrato();
+                    Transacao ultimaTransacao = extrato.get(extrato.size() - 1);
+
+                    modeloTabela.addRow(new Object[]{
+                            ultimaTransacao.getData(),
+                            ultimaTransacao.getTipoOperacao(),
+                            ultimaTransacao.getValor(),
+                            ultimaTransacao.getOrigemDestino()
+                    });
+                }
+            }
+        });
+
         painelSaldo.add(textoSaldo);
         painelAcoes.add(btnDepositar);
         painelAcoes.add(btnSacar);
         painelAcoes.add(btnPix);
         painelAcoes.add(btnGuardarCorrente);
+        painelAcoes.add(btnSimularRendimento);
         painelContaPoupanca.add(painelSaldo);
         painelContaPoupanca.add(painelAcoes);
         add(painelContaPoupanca, BorderLayout.NORTH);
