@@ -2,9 +2,35 @@ package org.ifpa.joaoadriel.sistemabancario.domain;
 
 import java.time.LocalDateTime;
 
-public class ContaCorrente extends Conta implements Tributavel{
-    public ContaCorrente(Usuario titutar, String chavePix, double saldo) {
-        super(titutar, chavePix, saldo);
+public class ContaCorrente extends Conta implements Tributavel {
+    private double limiteChequeEspecial;
+
+    public ContaCorrente(Usuario titular, String chavePix, double saldo) {
+        this(titular, chavePix, saldo, 500.00);
+    }
+
+    public ContaCorrente(Usuario titular, String chavePix, double saldo, double limiteChequeEspecial) {
+        super(titular, chavePix, saldo);
+        this.limiteChequeEspecial = limiteChequeEspecial;
+    }
+
+    public double getLimiteChequeEspecial() {
+        return limiteChequeEspecial;
+    }
+
+    public void setLimiteChequeEspecial(double limiteChequeEspecial) {
+        this.limiteChequeEspecial = limiteChequeEspecial;
+    }
+
+    public double getSaldoDisponivel() {
+        return this.saldo + this.limiteChequeEspecial;
+    }
+
+    public double getChequeEspecialRestante() {
+        if (this.saldo < 0) {
+            return Math.max(0, this.limiteChequeEspecial + this.saldo);
+        }
+        return this.limiteChequeEspecial;
     }
 
     @Override
@@ -17,20 +43,19 @@ public class ContaCorrente extends Conta implements Tributavel{
         if (valor <= 0) return false;
         double valorTotal = calcularTaxa() + valor;
 
-        if (this.saldo >= valorTotal){
+        if (this.getSaldoDisponivel() >= valorTotal) {
             this.saldo -= valorTotal;
             LocalDateTime dataAtual = LocalDateTime.now();
             Transacao transacao = new Transacao(dataAtual, "Saque + taxa Realizado", valorTotal, "Você mesmo");
             adicionarTransacao(transacao);
-
             return true;
         }
         return false;
     }
 
     @Override
-    public boolean depositar(double valor){
-        if (valor > 0){
+    public boolean depositar(double valor) {
+        if (valor > 0) {
             this.saldo += valor;
             LocalDateTime dataAtual = LocalDateTime.now();
             Transacao transacao = new Transacao(dataAtual, "Depósito Realizado", valor, "Você mesmo");
@@ -43,7 +68,7 @@ public class ContaCorrente extends Conta implements Tributavel{
     @Override
     public boolean pix(Conta contaDestino, double valor) {
         if (valor <= 0) return false;
-        if (this.getSaldo() >= valor){
+        if (this.getSaldoDisponivel() >= valor) {
             this.saldo -= valor;
             contaDestino.saldo += valor;
 

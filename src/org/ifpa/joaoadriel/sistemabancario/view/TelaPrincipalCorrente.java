@@ -24,13 +24,13 @@ public class TelaPrincipalCorrente extends JPanel {
     private JButton btnGuardarPoupanca;
     private DefaultTableModel modeloTabela;
 
-    public TelaPrincipalCorrente(Banco banco, Usuario usuarioLogado, CardLayout controlador, JPanel painelCentro){
+    public TelaPrincipalCorrente(Banco banco, Usuario usuarioLogado, CardLayout controlador, JPanel painelCentro) {
         this.banco = banco;
         setLayout(new BorderLayout());
 
         if (usuarioLogado.getContaCorrente() != null) {
             desenharPainelComConta(usuarioLogado);
-        }else{
+        } else {
             desenharPainelSemConta(usuarioLogado);
         }
 
@@ -39,9 +39,9 @@ public class TelaPrincipalCorrente extends JPanel {
             public void componentShown(ComponentEvent e) {
                 removeAll();
 
-                if (usuarioLogado.getContaCorrente() != null){
+                if (usuarioLogado.getContaCorrente() != null) {
                     desenharPainelComConta(usuarioLogado);
-                }else{
+                } else {
                     desenharPainelSemConta(usuarioLogado);
                 }
 
@@ -51,8 +51,23 @@ public class TelaPrincipalCorrente extends JPanel {
         });
     }
 
-    private void desenharPainelComConta(Usuario usuarioLogado){
+    private void atualizarExibicaoSaldo(ContaCorrente cc, JLabel textoSaldo, JLabel textoLimite) {
+        double saldoAtual = cc.getSaldo();
+        textoSaldo.setText(String.format("R$ %.2f", saldoAtual));
+
+        if (saldoAtual < 0) {
+            textoSaldo.setForeground(new Color(200, 40, 40));
+        } else {
+            textoSaldo.setForeground(Color.BLACK);
+        }
+
+        textoLimite.setText(String.format("Cheque Especial Disponível: R$ %.2f (Limite Total: R$ %.2f)",
+                cc.getChequeEspecialRestante(), cc.getLimiteChequeEspecial()));
+    }
+
+    private void desenharPainelComConta(Usuario usuarioLogado) {
         DateTimeFormatter formatadorData = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+        ContaCorrente cc = usuarioLogado.getContaCorrente();
 
         painelContaCorrente = new JPanel();
         painelContaCorrente.setLayout(new BoxLayout(painelContaCorrente, BoxLayout.Y_AXIS));
@@ -63,19 +78,26 @@ public class TelaPrincipalCorrente extends JPanel {
         painelContaCorrente.setBorder(bordaCima);
 
         painelSaldo = new JPanel();
-        painelSaldo.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 15));
+        painelSaldo.setLayout(new BoxLayout(painelSaldo, BoxLayout.Y_AXIS));
 
         javax.swing.border.TitledBorder bordaSaldo = BorderFactory.createTitledBorder("Seu saldo");
         bordaSaldo.setTitleFont(new Font("Arial", Font.ITALIC, 16));
 
         painelSaldo.setBorder(bordaSaldo);
         painelSaldo.setAlignmentX(Component.CENTER_ALIGNMENT);
-        painelSaldo.setPreferredSize(new Dimension(Integer.MAX_VALUE, 80));
-        painelSaldo.setMaximumSize(new Dimension(Integer.MAX_VALUE ,80));
+        painelSaldo.setPreferredSize(new Dimension(Integer.MAX_VALUE, 100));
+        painelSaldo.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
 
-        JLabel textoSaldo = new JLabel(String.format("R$ %.2f", usuarioLogado.getContaCorrente().getSaldo()));
+        JLabel textoSaldo = new JLabel();
         textoSaldo.setFont(new Font("Arial", Font.BOLD, 32));
         textoSaldo.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JLabel textoLimite = new JLabel();
+        textoLimite.setFont(new Font("Arial", Font.PLAIN, 14));
+        textoLimite.setForeground(new Color(80, 80, 80));
+        textoLimite.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        atualizarExibicaoSaldo(cc, textoSaldo, textoLimite);
 
         painelAcoes = new JPanel();
         painelAcoes.setLayout(new FlowLayout());
@@ -98,27 +120,29 @@ public class TelaPrincipalCorrente extends JPanel {
 
                 Conta contaDestino = banco.buscarContaPorPix(chavePix);
 
-                if (contaDestino == null){
+                if (contaDestino == null) {
                     JOptionPane.showMessageDialog(null, "Usuário não encontrado!", "[ERRO]", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 
-                if (contaDestino.getTitular().getCpf().equals(usuarioLogado.getCpf())){
+                if (contaDestino.getTitular().getCpf().equals(usuarioLogado.getCpf())) {
                     JOptionPane.showMessageDialog(null, "Você não pode enviar um pix para si mesmo!", "[ERRO]", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 
-                try{
-                    String valorDigitado = JOptionPane.showInputDialog(String.format("Seu saldo: R$ %.2f\nDigite o valor do pix: ", usuarioLogado.getContaCorrente().getSaldo()));
+                try {
+                    String valorDigitado = JOptionPane.showInputDialog(String.format(
+                            "Seu saldo: R$ %.2f\nDisponível (com Cheque Especial): R$ %.2f\nDigite o valor do pix: ",
+                            cc.getSaldo(), cc.getSaldoDisponivel()));
 
-                    if (valorDigitado == null){
+                    if (valorDigitado == null) {
                         JOptionPane.showMessageDialog(null, "Digite um valor numérico válido.", "[ERRO]", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 
                     double valor = Double.parseDouble(valorDigitado.replace(",", "."));
 
-                    if (valor <= 0){
+                    if (valor <= 0) {
                         JOptionPane.showMessageDialog(null, "Digite um valor maior que zero.");
                         return;
                     }
@@ -126,13 +150,13 @@ public class TelaPrincipalCorrente extends JPanel {
                     int opcao = JOptionPane.showConfirmDialog(null, String.format("Tem certeza que deseja fazer um pix para:\n%s\nNo valor de: R$ %.2f", contaDestino.getTitular().getNome(), valor), "Fazer pix", JOptionPane.YES_NO_OPTION);
 
                     if (opcao == JOptionPane.YES_OPTION) {
-                        boolean sucesso = usuarioLogado.getContaCorrente().pix(contaDestino, valor);
-                        if (sucesso){
-                            textoSaldo.setText(String.format("R$ %.2f", usuarioLogado.getContaCorrente().getSaldo()));
+                        boolean sucesso = cc.pix(contaDestino, valor);
+                        if (sucesso) {
+                            atualizarExibicaoSaldo(cc, textoSaldo, textoLimite);
                             GerenciadorCSV.salvarContas(banco);
                             GerenciadorCSV.salvarExtrato(banco);
 
-                            java.util.List<Transacao> extrato = usuarioLogado.getContaCorrente().getExtrato();
+                            java.util.List<Transacao> extrato = cc.getExtrato();
                             Transacao ultimaTransacao = extrato.get(extrato.size() - 1);
 
                             modeloTabela.addRow(new Object[]{
@@ -143,11 +167,11 @@ public class TelaPrincipalCorrente extends JPanel {
                             });
 
                             JOptionPane.showMessageDialog(null, "Transação realizada com sucesso!", "Transação feita!", JOptionPane.INFORMATION_MESSAGE);
-                        }else{
-                            JOptionPane.showMessageDialog(null, "Saldo insuficiente para o Pix.", "[ERRO]", JOptionPane.ERROR_MESSAGE);
+                        } else {
+                            JOptionPane.showMessageDialog(null, "Saldo e limite de cheque especial insuficientes para o Pix.", "[ERRO]", JOptionPane.ERROR_MESSAGE);
                         }
                     }
-                }catch (NumberFormatException ex){
+                } catch (NumberFormatException ex) {
                     JOptionPane.showMessageDialog(null, "Por favor, digite um valor numérico válido.", "[ERRO]", JOptionPane.ERROR_MESSAGE);
                 }
             }
@@ -157,31 +181,31 @@ public class TelaPrincipalCorrente extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    String valorDigitado = JOptionPane.showInputDialog(String.format("Seu saldo: R$ %.2f\nDigite o valor que deseja depositar: ", usuarioLogado.getContaCorrente().getSaldo()));
+                    String valorDigitado = JOptionPane.showInputDialog(String.format("Seu saldo: R$ %.2f\nDigite o valor que deseja depositar: ", cc.getSaldo()));
 
-                    if (valorDigitado == null){
+                    if (valorDigitado == null) {
                         JOptionPane.showMessageDialog(null, "Digite um valor numérico válido.", "[ERRO]", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 
                     double valor = Double.parseDouble(valorDigitado.replace(",", "."));
 
-                    if (valor <= 0){
+                    if (valor <= 0) {
                         JOptionPane.showMessageDialog(null, "Digite um valor maior que zero.");
                         return;
                     }
 
                     int opcao = JOptionPane.showConfirmDialog(null, String.format("Tem certeza que deseja fazer um depósito de R$ %.2f para sua conta?", valor), "Depositar", JOptionPane.YES_NO_OPTION);
 
-                    if (opcao == JOptionPane.YES_OPTION){
-                        boolean sucesso = usuarioLogado.getContaCorrente().depositar(valor);
+                    if (opcao == JOptionPane.YES_OPTION) {
+                        boolean sucesso = cc.depositar(valor);
 
-                        if (sucesso){
-                            textoSaldo.setText(String.format("R$ %.2f", usuarioLogado.getContaCorrente().getSaldo()));
+                        if (sucesso) {
+                            atualizarExibicaoSaldo(cc, textoSaldo, textoLimite);
                             GerenciadorCSV.salvarContas(banco);
                             GerenciadorCSV.salvarExtrato(banco);
 
-                            java.util.List<Transacao> extrato = usuarioLogado.getContaCorrente().getExtrato();
+                            java.util.List<Transacao> extrato = cc.getExtrato();
                             Transacao ultimaTransacao = extrato.get(extrato.size() - 1);
 
                             modeloTabela.addRow(new Object[]{
@@ -192,12 +216,12 @@ public class TelaPrincipalCorrente extends JPanel {
                             });
 
                             JOptionPane.showMessageDialog(null, "Depósito realizado com sucesso!", "Depósito feito!", JOptionPane.INFORMATION_MESSAGE);
-                        }else{
+                        } else {
                             JOptionPane.showMessageDialog(null, "Algo deu errado, tente novamente daqui a algum tempo", "[ERRO]", JOptionPane.ERROR_MESSAGE);
                         }
                     }
 
-                } catch (NumberFormatException ex){
+                } catch (NumberFormatException ex) {
                     JOptionPane.showMessageDialog(null, "Por favor, digite um valor numérico válido.", "[ERRO]", JOptionPane.ERROR_MESSAGE);
                 }
             }
@@ -207,7 +231,9 @@ public class TelaPrincipalCorrente extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    String valorDigitado = JOptionPane.showInputDialog(String.format("Seu saldo: R$ %.2f\nDigite o valor que deseja retirar: ", usuarioLogado.getContaCorrente().getSaldo()));
+                    String valorDigitado = JOptionPane.showInputDialog(String.format(
+                            "Seu saldo: R$ %.2f\nDisponível (com Cheque Especial): R$ %.2f\nDigite o valor que deseja retirar: ",
+                            cc.getSaldo(), cc.getSaldoDisponivel()));
 
                     if (valorDigitado == null) {
                         JOptionPane.showMessageDialog(null, "Digite um valor numérico válido.", "[ERRO]", JOptionPane.ERROR_MESSAGE);
@@ -216,22 +242,22 @@ public class TelaPrincipalCorrente extends JPanel {
 
                     double valor = Double.parseDouble(valorDigitado.replace(",", "."));
 
-                    if (valor <= 0){
+                    if (valor <= 0) {
                         JOptionPane.showMessageDialog(null, "Digite um valor maior que zero.");
                         return;
                     }
 
                     int opcao = JOptionPane.showConfirmDialog(null, String.format("Você tem certeza que deseja retirar de sua conta R$ %.2f (valor + taxa)?", (valor + 1)), "Sacar saldo", JOptionPane.YES_NO_OPTION);
 
-                    if (opcao == JOptionPane.YES_OPTION){
-                        boolean sucesso = usuarioLogado.getContaCorrente().sacar(valor);
+                    if (opcao == JOptionPane.YES_OPTION) {
+                        boolean sucesso = cc.sacar(valor);
 
-                        if (sucesso){
-                            textoSaldo.setText(String.format("R$ %.2f", usuarioLogado.getContaCorrente().getSaldo()));
+                        if (sucesso) {
+                            atualizarExibicaoSaldo(cc, textoSaldo, textoLimite);
                             GerenciadorCSV.salvarContas(banco);
                             GerenciadorCSV.salvarExtrato(banco);
 
-                            java.util.List<Transacao> extrato = usuarioLogado.getContaCorrente().getExtrato();
+                            java.util.List<Transacao> extrato = cc.getExtrato();
                             Transacao ultimaTransacao = extrato.get(extrato.size() - 1);
 
                             modeloTabela.addRow(new Object[]{
@@ -242,11 +268,11 @@ public class TelaPrincipalCorrente extends JPanel {
                             });
 
                             JOptionPane.showMessageDialog(null, "Saque realizado com sucesso!", "Saque feito!", JOptionPane.INFORMATION_MESSAGE);
-                        }else{
-                            JOptionPane.showMessageDialog(null, "Saldo insuficiente para realizar o saque com a taxa.", "[ERRO]", JOptionPane.ERROR_MESSAGE);
+                        } else {
+                            JOptionPane.showMessageDialog(null, "Saldo e limite de cheque especial insuficientes para realizar o saque com a taxa.", "[ERRO]", JOptionPane.ERROR_MESSAGE);
                         }
                     }
-                }catch (NumberFormatException ex){
+                } catch (NumberFormatException ex) {
                     JOptionPane.showMessageDialog(null, "Por favor, digite um valor numérico válido.", "[ERRO]", JOptionPane.ERROR_MESSAGE);
                 }
             }
@@ -259,8 +285,12 @@ public class TelaPrincipalCorrente extends JPanel {
                     JOptionPane.showMessageDialog(null, "Você não possui uma conta poupança para passar seu saldo", "[ERRO]", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
+                if (cc.getSaldo() <= 0) {
+                    JOptionPane.showMessageDialog(null, "Você não pode transferir o limite do cheque especial para a poupança. Apenas saldo positivo próprio.", "[ERRO]", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
                 try {
-                    String valorDigitado = JOptionPane.showInputDialog(null, String.format("Seu saldo: R$ %.2f\nQual a quantia que você deseja mandar para sua conta poupança?", usuarioLogado.getContaCorrente().getSaldo()));
+                    String valorDigitado = JOptionPane.showInputDialog(null, String.format("Seu saldo próprio: R$ %.2f\nQual a quantia que você deseja mandar para sua conta poupança?", cc.getSaldo()));
 
                     if (valorDigitado == null) {
                         JOptionPane.showMessageDialog(null, "Digite um valor numérico válido.", "[ERRO]", JOptionPane.ERROR_MESSAGE);
@@ -274,20 +304,20 @@ public class TelaPrincipalCorrente extends JPanel {
                         return;
                     }
 
-                    if (valor > usuarioLogado.getContaCorrente().getSaldo()) {
-                        JOptionPane.showMessageDialog(null, "Você não possui esse saldo", "[ERRO]", JOptionPane.ERROR_MESSAGE);
+                    if (valor > cc.getSaldo()) {
+                        JOptionPane.showMessageDialog(null, "Você não possui esse saldo próprio (não é permitido usar cheque especial para investir na poupança).", "[ERRO]", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 
                     boolean sucesso = usuarioLogado.guardarNaPoupanca(valor);
 
-                    if (sucesso){
-                        textoSaldo.setText(String.format("R$ %.2f", usuarioLogado.getContaCorrente().getSaldo()));
+                    if (sucesso) {
+                        atualizarExibicaoSaldo(cc, textoSaldo, textoLimite);
 
                         GerenciadorCSV.salvarContas(banco);
                         GerenciadorCSV.salvarExtrato(banco);
 
-                        java.util.List<Transacao> extrato = usuarioLogado.getContaCorrente().getExtrato();
+                        java.util.List<Transacao> extrato = cc.getExtrato();
                         Transacao ultimaTransacao = extrato.get(extrato.size() - 1);
 
                         modeloTabela.addRow(new Object[]{
@@ -300,13 +330,18 @@ public class TelaPrincipalCorrente extends JPanel {
                         JOptionPane.showMessageDialog(null, String.format("R$ %.2f transferidos para sua Poupança!", valor), "Sucesso", JOptionPane.INFORMATION_MESSAGE);
                     }
 
-                }catch (NumberFormatException ex){
+                } catch (NumberFormatException ex) {
                     JOptionPane.showMessageDialog(null, "Por favor, digite um valor numérico válido.", "[ERRO]", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
 
+        painelSaldo.add(Box.createVerticalGlue());
         painelSaldo.add(textoSaldo);
+        painelSaldo.add(Box.createRigidArea(new Dimension(0, 4)));
+        painelSaldo.add(textoLimite);
+        painelSaldo.add(Box.createVerticalGlue());
+
         painelAcoes.add(btnDepositar);
         painelAcoes.add(btnSacar);
         painelAcoes.add(btnPix);
@@ -326,7 +361,7 @@ public class TelaPrincipalCorrente extends JPanel {
         modeloTabela.addColumn("Valor (R$)");
         modeloTabela.addColumn("De / Para");
 
-        for (Transacao transacaoAtual : usuarioLogado.getContaCorrente().getExtrato()){
+        for (Transacao transacaoAtual : cc.getExtrato()) {
             modeloTabela.addRow(new Object[]{
                     transacaoAtual.getData().format(formatadorData),
                     transacaoAtual.getTipoOperacao(),
@@ -348,10 +383,10 @@ public class TelaPrincipalCorrente extends JPanel {
         add(painelRolagem, BorderLayout.CENTER);
     }
 
-    private void desenharPainelSemConta(Usuario usuarioLogado){
+    private void desenharPainelSemConta(Usuario usuarioLogado) {
         painelSemUsuario = new JPanel();
         painelSemUsuario.setLayout(new BoxLayout(painelSemUsuario, BoxLayout.Y_AXIS));
-        painelSemUsuario.setBorder(BorderFactory.createTitledBorder("Olá, "+ usuarioLogado.getNome() +", você não possui uma conta corrente."));
+        painelSemUsuario.setBorder(BorderFactory.createTitledBorder("Olá, " + usuarioLogado.getNome() + ", você não possui uma conta corrente."));
 
         JLabel textoCriarConta = new JLabel("Deseja criar uma conta corrente? ");
         textoCriarConta.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -386,7 +421,7 @@ public class TelaPrincipalCorrente extends JPanel {
                 if (sucesso) {
                     GerenciadorCSV.salvarContas(banco);
 
-                    JOptionPane.showMessageDialog(null, "Conta Corrente criada com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+                    JOptionPane.showMessageDialog(null, "Conta Corrente criada com sucesso! Você ganhou R$ 500,00 de limite no Cheque Especial.", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
 
                     removeAll();
                     desenharPainelComConta(usuarioLogado);

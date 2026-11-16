@@ -84,17 +84,17 @@ public class TelaPrincipal extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                if (((usuarioLogado.getContaCorrente() != null) && (usuarioLogado.getContaCorrente().getSaldo() > 0)) || ((usuarioLogado.getContaPoupanca() != null) && (usuarioLogado.getContaPoupanca().getSaldo() > 0))){
-                    JOptionPane.showMessageDialog(null, "Você não pode fazer essa operação, você possui saldo em alguma das suas contas, saque ou transfira seu saldo para poder deletar sua conta", "Aviso", JOptionPane.WARNING_MESSAGE);
+                if (((usuarioLogado.getContaCorrente() != null) && (usuarioLogado.getContaCorrente().getSaldo() != 0)) ||
+                        ((usuarioLogado.getContaPoupanca() != null) && (usuarioLogado.getContaPoupanca().getSaldo() != 0))) {
+                    JOptionPane.showMessageDialog(null, "Você não pode deletar sua conta pois possui saldo positivo ou débito pendente no cheque especial. Zere suas contas antes de prosseguir.", "Aviso", JOptionPane.WARNING_MESSAGE);
                     return;
                 }
 
-                int resp = JOptionPane.showConfirmDialog(null, "Deseja deletar sua conta permanentemente? esta opção é irreversível!", "Deletar conta", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+                int resp = JOptionPane.showConfirmDialog(null, "Deseja deletar sua conta permanentemente? Esta opção é irreversível!", "Deletar conta", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 
-                if (resp == JOptionPane.YES_OPTION){
-
+                if (resp == JOptionPane.YES_OPTION) {
                     boolean sucesso = banco.deletarUsuarios(usuarioLogado);
-                    if (sucesso){
+                    if (sucesso) {
                         GerenciadorCSV.salvarContas(banco);
                         GerenciadorCSV.salvarExtrato(banco);
 

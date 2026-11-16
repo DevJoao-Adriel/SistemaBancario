@@ -18,24 +18,28 @@ public class Usuario {
         this.contaPoupanca = null;
     }
 
-    public boolean abrirContaCorrente(String chavePix, double saldoInicial){
+    public boolean abrirContaCorrente(String chavePix, double saldoInicial) {
+        return abrirContaCorrente(chavePix, saldoInicial, 500.00);
+    }
+
+    public boolean abrirContaCorrente(String chavePix, double saldoInicial, double limiteChequeEspecial) {
         if (this.contaCorrente != null || chavePix == null || chavePix.contains(";")) {
             return false;
         }
-        this.contaCorrente = new ContaCorrente(this, chavePix.trim(), saldoInicial);
+        this.contaCorrente = new ContaCorrente(this, chavePix.trim(), saldoInicial, limiteChequeEspecial);
         return true;
     }
 
-    public boolean abrirContaPoupanca(String chavePix, double saldoInicial){
-        if (this.contaPoupanca != null || chavePix == null || chavePix.contains(";")){
+    public boolean abrirContaPoupanca(String chavePix, double saldoInicial) {
+        if (this.contaPoupanca != null || chavePix == null || chavePix.contains(";")) {
             return false;
         }
         this.contaPoupanca = new ContaPoupanca(this, chavePix.trim(), saldoInicial);
         return true;
     }
 
-    public boolean guardarNaPoupanca(double valor){
-        if ((this.getContaCorrente() != null) && (this.getContaPoupanca() != null)){
+    public boolean guardarNaPoupanca(double valor) {
+        if ((this.getContaCorrente() != null) && (this.getContaPoupanca() != null)) {
             if (valor <= 0) return false;
             if (contaCorrente.getSaldo() < valor) return false;
 
@@ -51,13 +55,13 @@ public class Usuario {
             contaPoupanca.adicionarTransacao(transacaoRecebida);
 
             return true;
-        }else{
+        } else {
             return false;
         }
     }
 
-    public boolean resgatarDaPoupanca(double valor){
-        if ((this.getContaCorrente() != null) && (this.getContaPoupanca() != null)){
+    public boolean resgatarDaPoupanca(double valor) {
+        if ((this.getContaCorrente() != null) && (this.getContaPoupanca() != null)) {
             if (valor <= 0) return false;
             if (contaPoupanca.getSaldo() < valor) return false;
 
@@ -73,7 +77,7 @@ public class Usuario {
             contaCorrente.adicionarTransacao(transacaoRecebida);
 
             return true;
-        }else{
+        } else {
             return false;
         }
     }
