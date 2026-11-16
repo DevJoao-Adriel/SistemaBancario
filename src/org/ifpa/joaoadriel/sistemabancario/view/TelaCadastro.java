@@ -11,7 +11,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.ParseException;
 
-public class TelaCadastro extends JPanel{
+public class TelaCadastro extends JPanel {
     private Banco banco;
     private CardLayout controlador;
     private JPanel painelCentro;
@@ -23,37 +23,51 @@ public class TelaCadastro extends JPanel{
     private JButton botaoCadastrar;
     private JPanel painelFormulario;
 
-    public TelaCadastro(Banco banco, CardLayout controlador, JPanel painelCentro, TelaConfiguracaoConta telaConfiguracaoConta){
+    public TelaCadastro(Banco banco, CardLayout controlador, JPanel painelCentro, TelaConfiguracaoConta telaConfiguracaoConta) {
         this.banco = banco;
         this.controlador = controlador;
         this.painelCentro = painelCentro;
         this.telaConfiguracaoConta = telaConfiguracaoConta;
 
-        setLayout(new GridBagLayout());
+        Color azulBanco = new Color(30, 58, 95);
+        Color fundoClaro = new Color(244, 246, 249);
+        Color verdeAcao = new Color(25, 135, 84);
+        Color textoEscuro = new Color(45, 55, 72);
 
-        Font fonteGeral = new Font("Arial", Font.PLAIN, 16);
-        Font fonteBotao = new Font("Arial", Font.BOLD, 14);
+        setLayout(new GridBagLayout());
+        setBackground(fundoClaro);
+
+        Font fonteGeral = new Font("SansSerif", Font.PLAIN, 15);
+        Font fonteBotao = new Font("SansSerif", Font.BOLD, 14);
 
         painelFormulario = new JPanel();
         painelFormulario.setLayout(new BoxLayout(painelFormulario, BoxLayout.Y_AXIS));
+        painelFormulario.setBackground(Color.WHITE);
 
-        TitledBorder bordaTitulo = BorderFactory.createTitledBorder("Tela de Cadastro");
-        bordaTitulo.setTitleFont(new Font("Arial", Font.BOLD, 18));
+        TitledBorder bordaTitulo = BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(new Color(203, 213, 225), 1),
+                "Cadastro de Novo Cliente"
+        );
+        bordaTitulo.setTitleFont(new Font("SansSerif", Font.BOLD, 18));
+        bordaTitulo.setTitleColor(azulBanco);
+
         painelFormulario.setBorder(BorderFactory.createCompoundBorder(
                 bordaTitulo,
-                BorderFactory.createEmptyBorder(20, 40, 20, 40)
+                BorderFactory.createEmptyBorder(20, 45, 20, 45)
         ));
 
-        JLabel textoNome = new JLabel("Digite seu nome: ");
+        JLabel textoNome = new JLabel("Nome completo:");
         textoNome.setFont(fonteGeral);
+        textoNome.setForeground(textoEscuro);
         textoNome.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         nome = new JTextField(15);
         nome.setFont(fonteGeral);
         nome.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JLabel textoCpf = new JLabel("Digite seu CPF: ");
+        JLabel textoCpf = new JLabel("CPF:");
         textoCpf.setFont(fonteGeral);
+        textoCpf.setForeground(textoEscuro);
         textoCpf.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         try {
@@ -64,30 +78,34 @@ public class TelaCadastro extends JPanel{
             cpf.setFont(fonteGeral);
             cpf.setAlignmentX(Component.CENTER_ALIGNMENT);
             cpf.setColumns(15);
-
-        } catch (ParseException e){
+        } catch (ParseException e) {
             cpf = new JFormattedTextField();
-            JOptionPane.showMessageDialog(null, "Erro ao validar o CPF: "+ e.getMessage(), "[ERRO]", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Erro ao validar o CPF: " + e.getMessage(), "[ERRO]", JOptionPane.ERROR_MESSAGE);
         }
 
-        JLabel textoSenha = new JLabel("Digite uma senha: ");
+        JLabel textoSenha = new JLabel("Crie uma senha (mín. 8 caracteres):");
         textoSenha.setFont(fonteGeral);
+        textoSenha.setForeground(textoEscuro);
         textoSenha.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         senha = new JPasswordField(15);
         senha.setFont(fonteGeral);
         senha.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JLabel textoRepeteSenha = new JLabel("Repita a senha novamente: ");
+        JLabel textoRepeteSenha = new JLabel("Repita a senha:");
         textoRepeteSenha.setFont(fonteGeral);
+        textoRepeteSenha.setForeground(textoEscuro);
         textoRepeteSenha.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         senhaRepetida = new JPasswordField(15);
         senhaRepetida.setFont(fonteGeral);
         senhaRepetida.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        botaoCadastrar = new JButton("Criar conta");
+        botaoCadastrar = new JButton("Continuar");
         botaoCadastrar.setFont(fonteBotao);
+        botaoCadastrar.setBackground(verdeAcao);
+        botaoCadastrar.setForeground(Color.WHITE);
+        botaoCadastrar.setFocusPainted(false);
         botaoCadastrar.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         nome.addActionListener(new ActionListener() {
@@ -120,14 +138,13 @@ public class TelaCadastro extends JPanel{
 
         botaoCadastrar.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent e){
-
+            public void actionPerformed(ActionEvent e) {
                 String nomeDigitado = nome.getText().trim();
                 String cpfDigitado = cpf.getText();
                 String senhaDigitada = new String(senha.getPassword());
                 String senhaDigitadaRepetida = new String(senhaRepetida.getPassword());
 
-                if ((nomeDigitado.isBlank()) || (senhaDigitada.isBlank()) || (senhaDigitadaRepetida.isBlank()) || (cpfDigitado.isBlank()) ) {
+                if ((nomeDigitado.isBlank()) || (senhaDigitada.isBlank()) || (senhaDigitadaRepetida.isBlank()) || (cpfDigitado.isBlank())) {
                     JOptionPane.showMessageDialog(null, "Preencha todos os campos!", "[ERRO]", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
@@ -137,24 +154,24 @@ public class TelaCadastro extends JPanel{
                     return;
                 }
 
-                if (cpfDigitado.contains("_")){
+                if (cpfDigitado.contains("_")) {
                     JOptionPane.showMessageDialog(null, "Por favor, preencha todos os números do CPF.", "[ERRO]", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 
-                if (senhaDigitada.length() < 8){
+                if (senhaDigitada.length() < 8) {
                     JOptionPane.showMessageDialog(null, "Digite uma senha com no mínimo 8 caracteres", "Tente novamente", JOptionPane.INFORMATION_MESSAGE);
                     return;
                 }
 
                 Usuario usuarioAtual = banco.buscarPorCpf(cpfDigitado);
 
-                if (usuarioAtual != null){
+                if (usuarioAtual != null) {
                     JOptionPane.showMessageDialog(null, "CPF já cadastrado", "[ERRO]", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 
-                if (!senhaDigitadaRepetida.equals(senhaDigitada)){
+                if (!senhaDigitadaRepetida.equals(senhaDigitada)) {
                     JOptionPane.showMessageDialog(null, "As senhas não coincidem", "Tente novamente", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
@@ -168,26 +185,26 @@ public class TelaCadastro extends JPanel{
         });
 
         painelFormulario.add(textoNome);
-        painelFormulario.add(Box.createRigidArea(new Dimension(0, 5)));
+        painelFormulario.add(Box.createRigidArea(new Dimension(0, 4)));
         painelFormulario.add(nome);
         painelFormulario.add(Box.createRigidArea(new Dimension(0, 10)));
         painelFormulario.add(textoCpf);
-        painelFormulario.add(Box.createRigidArea(new Dimension(0, 5)));
+        painelFormulario.add(Box.createRigidArea(new Dimension(0, 4)));
         painelFormulario.add(cpf);
         painelFormulario.add(Box.createRigidArea(new Dimension(0, 10)));
         painelFormulario.add(textoSenha);
-        painelFormulario.add(Box.createRigidArea(new Dimension(0, 5)));
+        painelFormulario.add(Box.createRigidArea(new Dimension(0, 4)));
         painelFormulario.add(senha);
         painelFormulario.add(Box.createRigidArea(new Dimension(0, 10)));
         painelFormulario.add(textoRepeteSenha);
-        painelFormulario.add(Box.createRigidArea(new Dimension(0, 5)));
+        painelFormulario.add(Box.createRigidArea(new Dimension(0, 4)));
         painelFormulario.add(senhaRepetida);
-        painelFormulario.add(Box.createRigidArea(new Dimension(0, 20)));
+        painelFormulario.add(Box.createRigidArea(new Dimension(0, 18)));
         painelFormulario.add(botaoCadastrar);
         add(painelFormulario);
     }
 
-    private void limparDados(){
+    private void limparDados() {
         nome.setText("");
         cpf.setValue(null);
         senha.setText("");
