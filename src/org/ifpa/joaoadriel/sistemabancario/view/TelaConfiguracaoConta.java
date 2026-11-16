@@ -93,10 +93,15 @@ public class TelaConfiguracaoConta extends JPanel{
         botaoCriarConta.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String chavePixDigitada = chavePix.getText();
+                String chavePixDigitada = chavePix.getText().trim();
 
                 if (chavePixDigitada.isBlank()){
                     JOptionPane.showMessageDialog(null, "[ERRO] Você não criou uma chave pix!", "[ERRO]", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                if (chavePixDigitada.contains(";")) {
+                    JOptionPane.showMessageDialog(null, "O caractere ';' (ponto e vírgula) não é permitido na chave Pix.", "[ERRO]", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 

@@ -19,18 +19,18 @@ public class Usuario {
     }
 
     public boolean abrirContaCorrente(String chavePix, double saldoInicial){
-        if (this.contaCorrente != null) {
+        if (this.contaCorrente != null || chavePix == null || chavePix.contains(";")) {
             return false;
         }
-        this.contaCorrente = new ContaCorrente(this, chavePix, saldoInicial);
+        this.contaCorrente = new ContaCorrente(this, chavePix.trim(), saldoInicial);
         return true;
     }
 
     public boolean abrirContaPoupanca(String chavePix, double saldoInicial){
-        if (this.contaPoupanca != null){
+        if (this.contaPoupanca != null || chavePix == null || chavePix.contains(";")){
             return false;
         }
-        this.contaPoupanca = new ContaPoupanca(this, chavePix, saldoInicial);
+        this.contaPoupanca = new ContaPoupanca(this, chavePix.trim(), saldoInicial);
         return true;
     }
 

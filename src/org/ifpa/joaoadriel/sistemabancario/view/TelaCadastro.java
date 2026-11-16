@@ -122,13 +122,18 @@ public class TelaCadastro extends JPanel{
             @Override
             public void actionPerformed(ActionEvent e){
 
-                String nomeDigitado = nome.getText();
+                String nomeDigitado = nome.getText().trim();
                 String cpfDigitado = cpf.getText();
                 String senhaDigitada = new String(senha.getPassword());
                 String senhaDigitadaRepetida = new String(senhaRepetida.getPassword());
 
                 if ((nomeDigitado.isBlank()) || (senhaDigitada.isBlank()) || (senhaDigitadaRepetida.isBlank()) || (cpfDigitado.isBlank()) ) {
                     JOptionPane.showMessageDialog(null, "Preencha todos os campos!", "[ERRO]", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                if (nomeDigitado.contains(";") || senhaDigitada.contains(";")) {
+                    JOptionPane.showMessageDialog(null, "O caractere ';' (ponto e vírgula) não é permitido no nome ou na senha.", "[ERRO]", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 

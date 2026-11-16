@@ -409,6 +409,13 @@ public class TelaPrincipalPoupanca extends JPanel {
                     return;
                 }
 
+                chavePix = chavePix.trim();
+
+                if (chavePix.contains(";")) {
+                    JOptionPane.showMessageDialog(null, "O caractere ';' (ponto e vírgula) não é permitido na chave Pix.", "[ERRO]", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
                 if (banco.buscarContaPorPix(chavePix) != null) {
                     JOptionPane.showMessageDialog(null, "Esta chave PIX já está em uso no banco. Escolha outra.", "[ERRO]", JOptionPane.ERROR_MESSAGE);
                     return;
