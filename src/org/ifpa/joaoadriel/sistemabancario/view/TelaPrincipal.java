@@ -84,8 +84,10 @@ public class TelaPrincipal extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                if (((usuarioLogado.getContaCorrente() != null) && (usuarioLogado.getContaCorrente().getSaldo() != 0)) ||
-                        ((usuarioLogado.getContaPoupanca() != null) && (usuarioLogado.getContaPoupanca().getSaldo() != 0))) {
+                boolean temSaldoCorrente = (usuarioLogado.getContaCorrente() != null) && (Math.abs(usuarioLogado.getContaCorrente().getSaldo()) >= 0.01);
+                boolean temSaldoPoupanca = (usuarioLogado.getContaPoupanca() != null) && (Math.abs(usuarioLogado.getContaPoupanca().getSaldo()) >= 0.01);
+
+                if (temSaldoCorrente || temSaldoPoupanca) {
                     JOptionPane.showMessageDialog(null, "Você não pode deletar sua conta pois possui saldo positivo ou débito pendente no cheque especial. Zere suas contas antes de prosseguir.", "Aviso", JOptionPane.WARNING_MESSAGE);
                     return;
                 }

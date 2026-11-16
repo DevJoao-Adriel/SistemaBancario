@@ -45,8 +45,10 @@ public class Banco {
     }
 
     public boolean deletarUsuarios(Usuario usuarioLogado) {
-        if (((usuarioLogado.getContaCorrente() != null) && (usuarioLogado.getContaCorrente().getSaldo() != 0)) ||
-                ((usuarioLogado.getContaPoupanca() != null) && (usuarioLogado.getContaPoupanca().getSaldo() != 0))) {
+        boolean temSaldoCorrente = (usuarioLogado.getContaCorrente() != null) && (Math.abs(usuarioLogado.getContaCorrente().getSaldo()) >= 0.01);
+        boolean temSaldoPoupanca = (usuarioLogado.getContaPoupanca() != null) && (Math.abs(usuarioLogado.getContaPoupanca().getSaldo()) >= 0.01);
+
+        if (temSaldoCorrente || temSaldoPoupanca) {
             return false;
         }
         usuarios.remove(usuarioLogado);
