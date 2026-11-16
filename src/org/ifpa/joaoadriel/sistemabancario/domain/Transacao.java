@@ -1,6 +1,5 @@
 package org.ifpa.joaoadriel.sistemabancario.domain;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class Transacao {

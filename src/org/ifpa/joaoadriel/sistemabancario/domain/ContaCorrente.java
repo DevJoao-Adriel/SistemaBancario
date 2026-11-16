@@ -49,7 +49,7 @@ public class ContaCorrente extends Conta implements Tributavel{
 
             LocalDateTime dataAtual = LocalDateTime.now();
 
-            Transacao transacaoEnviada = new Transacao(dataAtual, "Pix Enviado", valor, "Para: "+ contaDestino.getTitular().getNome());
+            Transacao transacaoEnviada = new Transacao(dataAtual, "Pix Enviado", valor, contaDestino.getTitular().getNome());
             Transacao transacaoRecebida = new Transacao(dataAtual, "Pix Recebido", valor, this.getTitular().getNome());
 
             this.adicionarTransacao(transacaoEnviada);

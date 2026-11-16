@@ -9,6 +9,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.time.format.DateTimeFormatter;
 
 public class TelaPrincipalPoupanca extends JPanel {
     private Banco banco;
@@ -55,10 +56,12 @@ public class TelaPrincipalPoupanca extends JPanel {
     }
 
     private void desenharPainelComConta(Usuario usuarioLogado){
+        DateTimeFormatter formatadorData = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
         painelContaPoupanca = new JPanel();
         painelContaPoupanca.setLayout(new BoxLayout(painelContaPoupanca, BoxLayout.Y_AXIS));
 
-        javax.swing.border.TitledBorder bordaCima = BorderFactory.createTitledBorder("Olá" + usuarioLogado.getNome() + " esta é sua Conta Poupança");
+        javax.swing.border.TitledBorder bordaCima = BorderFactory.createTitledBorder("Olá, " + usuarioLogado.getNome() + ", esta é sua Conta Poupança");
         bordaCima.setTitleFont(new Font("Arial", Font.ITALIC, 16));
 
         painelContaPoupanca.setBorder(bordaCima);
@@ -74,7 +77,7 @@ public class TelaPrincipalPoupanca extends JPanel {
         painelSaldo.setPreferredSize(new Dimension(Integer.MAX_VALUE, 80));
         painelSaldo.setMaximumSize(new Dimension(Integer.MAX_VALUE, 80));
 
-        JLabel textoSaldo = new JLabel("R$ " + usuarioLogado.getContaPoupanca().getSaldo());
+        JLabel textoSaldo = new JLabel(String.format("R$ %.2f", usuarioLogado.getContaPoupanca().getSaldo()));
         textoSaldo.setFont(new Font("Arial", Font.BOLD, 32));
         textoSaldo.setAlignmentX(Component.CENTER_ALIGNMENT);
 
@@ -101,7 +104,7 @@ public class TelaPrincipalPoupanca extends JPanel {
                 Conta contaDestino = banco.buscarContaPorPix(chavePix);
 
                 if (contaDestino == null){
-                    JOptionPane.showMessageDialog(null, "Usário não encontrado!", "[ERRO]", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(null, "Usuário não encontrado!", "[ERRO]", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 
@@ -111,26 +114,26 @@ public class TelaPrincipalPoupanca extends JPanel {
                 }
 
                 try{
-                    String valorDigitado = JOptionPane.showInputDialog("Seu saldo: R$" + usuarioLogado.getContaPoupanca().getSaldo() + "\n Digite o valor do pix: ");
+                    String valorDigitado = JOptionPane.showInputDialog(String.format("Seu saldo: R$ %.2f\nDigite o valor do pix: ", usuarioLogado.getContaPoupanca().getSaldo()));
 
                     if (valorDigitado == null){
-                        JOptionPane.showMessageDialog(null, "Digite  um valor numérico válido.", "[ERRO]", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(null, "Digite um valor numérico válido.", "[ERRO]", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 
-                    double valor = Double.parseDouble(valorDigitado);
+                    double valor = Double.parseDouble(valorDigitado.replace(",", "."));
 
                     if (valor <= 0){
                         JOptionPane.showMessageDialog(null, "Digite um valor maior que zero.");
                         return;
                     }
 
-                    int opcao = JOptionPane.showConfirmDialog(null, "Tem certeza que deseja fazer um pix para: \n" + contaDestino.getTitular().getNome() + "\n No valor de: R$" + valor, "Fazer pix", JOptionPane.YES_NO_OPTION);
+                    int opcao = JOptionPane.showConfirmDialog(null, String.format("Tem certeza que deseja fazer um pix para:\n%s\nNo valor de: R$ %.2f", contaDestino.getTitular().getNome(), valor), "Fazer pix", JOptionPane.YES_NO_OPTION);
 
                     if (opcao == JOptionPane.YES_OPTION) {
                         boolean sucesso = usuarioLogado.getContaPoupanca().pix(contaDestino, valor);
                         if (sucesso){
-                            textoSaldo.setText("R$ " + usuarioLogado.getContaPoupanca().getSaldo());
+                            textoSaldo.setText(String.format("R$ %.2f", usuarioLogado.getContaPoupanca().getSaldo()));
                             GerenciadorCSV.salvarContas(banco);
                             GerenciadorCSV.salvarExtrato(banco);
 
@@ -138,9 +141,9 @@ public class TelaPrincipalPoupanca extends JPanel {
                             Transacao ultimaTransacao = extrato.get(extrato.size() - 1);
 
                             modeloTabela.addRow(new Object[]{
-                                    ultimaTransacao.getData(),
+                                    ultimaTransacao.getData().format(formatadorData),
                                     ultimaTransacao.getTipoOperacao(),
-                                    ultimaTransacao.getValor(),
+                                    String.format("%.2f", ultimaTransacao.getValor()),
                                     ultimaTransacao.getOrigemDestino()
                             });
 
@@ -148,11 +151,10 @@ public class TelaPrincipalPoupanca extends JPanel {
                         }else{
                             JOptionPane.showMessageDialog(null, "Saldo insuficiente para o Pix.", "[ERRO]", JOptionPane.ERROR_MESSAGE);
                         }
-                    }else return;
+                    }
                 }catch (NumberFormatException ex){
                     JOptionPane.showMessageDialog(null, "Por favor, digite um valor numérico válido.", "[ERRO]", JOptionPane.ERROR_MESSAGE);
                 }
-
             }
         });
 
@@ -160,27 +162,27 @@ public class TelaPrincipalPoupanca extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    String valorDigitado = JOptionPane.showInputDialog("Seu saldo R$" + usuarioLogado.getContaPoupanca().getSaldo() + "\n Digite o valor que deseja depositar: ");
+                    String valorDigitado = JOptionPane.showInputDialog(String.format("Seu saldo: R$ %.2f\nDigite o valor que deseja depositar: ", usuarioLogado.getContaPoupanca().getSaldo()));
 
                     if (valorDigitado == null){
-                        JOptionPane.showMessageDialog(null, "Digite  um valor numérico válido.", "[ERRO]", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(null, "Digite um valor numérico válido.", "[ERRO]", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 
-                    double valor = Double.parseDouble(valorDigitado);
+                    double valor = Double.parseDouble(valorDigitado.replace(",", "."));
 
                     if (valor <= 0){
                         JOptionPane.showMessageDialog(null, "Digite um valor maior que zero.");
                         return;
                     }
 
-                    int opcao = JOptionPane.showConfirmDialog(null, "Tem certeza que deseja fazer um depósito de R$" + valor + "para sua conta ", "Depositar", JOptionPane.YES_NO_OPTION);
+                    int opcao = JOptionPane.showConfirmDialog(null, String.format("Tem certeza que deseja fazer um depósito de R$ %.2f para sua conta?", valor), "Depositar", JOptionPane.YES_NO_OPTION);
 
                     if (opcao == JOptionPane.YES_OPTION){
                         boolean sucesso = usuarioLogado.getContaPoupanca().depositar(valor);
 
                         if (sucesso){
-                            textoSaldo.setText("R$ " + usuarioLogado.getContaPoupanca().getSaldo());
+                            textoSaldo.setText(String.format("R$ %.2f", usuarioLogado.getContaPoupanca().getSaldo()));
                             GerenciadorCSV.salvarContas(banco);
                             GerenciadorCSV.salvarExtrato(banco);
 
@@ -188,18 +190,17 @@ public class TelaPrincipalPoupanca extends JPanel {
                             Transacao ultimaTransacao = extrato.get(extrato.size() - 1);
 
                             modeloTabela.addRow(new Object[]{
-                                    ultimaTransacao.getData(),
+                                    ultimaTransacao.getData().format(formatadorData),
                                     ultimaTransacao.getTipoOperacao(),
-                                    ultimaTransacao.getValor(),
+                                    String.format("%.2f", ultimaTransacao.getValor()),
                                     ultimaTransacao.getOrigemDestino()
                             });
 
                             JOptionPane.showMessageDialog(null, "Depósito realizado com sucesso!", "Depósito feito!", JOptionPane.INFORMATION_MESSAGE);
                         }else{
                             JOptionPane.showMessageDialog(null, "Algo deu errado, tente novamente daqui a algum tempo", "[ERRO]", JOptionPane.ERROR_MESSAGE);
-                            return;
                         }
-                    }else return;
+                    }
 
                 } catch (NumberFormatException ex){
                     JOptionPane.showMessageDialog(null, "Por favor, digite um valor numérico válido.", "[ERRO]", JOptionPane.ERROR_MESSAGE);
@@ -211,27 +212,27 @@ public class TelaPrincipalPoupanca extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    String valorDigitado = JOptionPane.showInputDialog("Seu saldo R$" + usuarioLogado.getContaPoupanca().getSaldo() + "\n Digite o valor que deseja retirar: ");
+                    String valorDigitado = JOptionPane.showInputDialog(String.format("Seu saldo: R$ %.2f\nDigite o valor que deseja retirar: ", usuarioLogado.getContaPoupanca().getSaldo()));
 
                     if (valorDigitado == null) {
-                        JOptionPane.showMessageDialog(null, "Digite  um valor numérico válido.", "[ERRO]", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(null, "Digite um valor numérico válido.", "[ERRO]", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 
-                    double valor = Double.parseDouble(valorDigitado);
+                    double valor = Double.parseDouble(valorDigitado.replace(",", "."));
 
                     if (valor <= 0){
                         JOptionPane.showMessageDialog(null, "Digite um valor maior que zero.");
                         return;
                     }
 
-                    int opcao = JOptionPane.showConfirmDialog(null, "Você tem certeza que deseja retirar de sua conta R$" + valor+ "?", "Sacar saldo", JOptionPane.YES_NO_OPTION);
+                    int opcao = JOptionPane.showConfirmDialog(null, String.format("Você tem certeza que deseja retirar de sua conta R$ %.2f?", valor), "Sacar saldo", JOptionPane.YES_NO_OPTION);
 
                     if (opcao == JOptionPane.YES_OPTION){
                         boolean sucesso = usuarioLogado.getContaPoupanca().sacar(valor);
 
                         if (sucesso){
-                            textoSaldo.setText("R$ " + usuarioLogado.getContaPoupanca().getSaldo());
+                            textoSaldo.setText(String.format("R$ %.2f", usuarioLogado.getContaPoupanca().getSaldo()));
                             GerenciadorCSV.salvarContas(banco);
                             GerenciadorCSV.salvarExtrato(banco);
 
@@ -239,18 +240,17 @@ public class TelaPrincipalPoupanca extends JPanel {
                             Transacao ultimaTransacao = extrato.get(extrato.size() - 1);
 
                             modeloTabela.addRow(new Object[]{
-                                    ultimaTransacao.getData(),
+                                    ultimaTransacao.getData().format(formatadorData),
                                     ultimaTransacao.getTipoOperacao(),
-                                    ultimaTransacao.getValor(),
+                                    String.format("%.2f", ultimaTransacao.getValor()),
                                     ultimaTransacao.getOrigemDestino()
                             });
 
-                            JOptionPane.showMessageDialog(null, "Depósito realizado com sucesso!", "Depósito feito!", JOptionPane.INFORMATION_MESSAGE);
+                            JOptionPane.showMessageDialog(null, "Saque realizado com sucesso!", "Saque feito!", JOptionPane.INFORMATION_MESSAGE);
                         }else{
-                            JOptionPane.showMessageDialog(null, "Algo deu errado, tente novamente daqui a algum tempo", "[ERRO]", JOptionPane.ERROR_MESSAGE);
-                            return;
+                            JOptionPane.showMessageDialog(null, "Saldo insuficiente para realizar o saque.", "[ERRO]", JOptionPane.ERROR_MESSAGE);
                         }
-                    }else return;
+                    }
                 }catch (NumberFormatException ex){
                     JOptionPane.showMessageDialog(null, "Por favor, digite um valor numérico válido.", "[ERRO]", JOptionPane.ERROR_MESSAGE);
                 }
@@ -266,14 +266,14 @@ public class TelaPrincipalPoupanca extends JPanel {
                 }
 
                 try{
-                    String valorDigitado = JOptionPane.showInputDialog("Qual a quantia que você deseja mandar para sua conta Corrente?");
+                    String valorDigitado = JOptionPane.showInputDialog(String.format("Seu saldo: R$ %.2f\nQual a quantia que você deseja mandar para sua conta Corrente?", usuarioLogado.getContaPoupanca().getSaldo()));
 
                     if (valorDigitado == null){
-                        JOptionPane.showMessageDialog(null, "Digite um valor númerico válido", "[ERRO]", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(null, "Digite um valor numérico válido", "[ERRO]", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 
-                    double valor = Double.parseDouble(valorDigitado);
+                    double valor = Double.parseDouble(valorDigitado.replace(",", "."));
 
                     if (valor <= 0){
                         JOptionPane.showMessageDialog(null, "Digite um valor válido", "[ERRO]", JOptionPane.ERROR_MESSAGE);
@@ -288,7 +288,7 @@ public class TelaPrincipalPoupanca extends JPanel {
                     boolean sucesso = usuarioLogado.resgatarDaPoupanca(valor);
 
                     if (sucesso){
-                        textoSaldo.setText("R$ " + usuarioLogado.getContaPoupanca().getSaldo());
+                        textoSaldo.setText(String.format("R$ %.2f", usuarioLogado.getContaPoupanca().getSaldo()));
 
                         GerenciadorCSV.salvarContas(banco);
                         GerenciadorCSV.salvarExtrato(banco);
@@ -297,11 +297,13 @@ public class TelaPrincipalPoupanca extends JPanel {
                         Transacao ultimaTransacao = extrato.get(extrato.size() - 1);
 
                         modeloTabela.addRow(new Object[]{
-                                ultimaTransacao.getData(),
+                                ultimaTransacao.getData().format(formatadorData),
                                 ultimaTransacao.getTipoOperacao(),
-                                ultimaTransacao.getValor(),
+                                String.format("%.2f", ultimaTransacao.getValor()),
                                 ultimaTransacao.getOrigemDestino()
                         });
+
+                        JOptionPane.showMessageDialog(null, String.format("R$ %.2f transferidos para sua Conta Corrente!", valor), "Sucesso", JOptionPane.INFORMATION_MESSAGE);
                     }
 
                 }catch (NumberFormatException ex){
@@ -319,11 +321,11 @@ public class TelaPrincipalPoupanca extends JPanel {
                     return;
                 }
 
-                int resp = JOptionPane.showConfirmDialog(null, "Deseja simular um rendimento de 1 mês?", "Rendimento", JOptionPane.YES_NO_OPTION);
+                int resp = JOptionPane.showConfirmDialog(null, String.format("Saldo atual: R$ %.2f\nDeseja simular um rendimento de 1 mês?", usuarioLogado.getContaPoupanca().getSaldo()), "Rendimento", JOptionPane.YES_NO_OPTION);
 
                 if (resp == JOptionPane.YES_OPTION){
                     usuarioLogado.getContaPoupanca().simularRendimento();
-                    textoSaldo.setText("R$ " + usuarioLogado.getContaPoupanca().getSaldo());
+                    textoSaldo.setText(String.format("R$ %.2f", usuarioLogado.getContaPoupanca().getSaldo()));
 
                     GerenciadorCSV.salvarContas(banco);
                     GerenciadorCSV.salvarExtrato(banco);
@@ -332,11 +334,13 @@ public class TelaPrincipalPoupanca extends JPanel {
                     Transacao ultimaTransacao = extrato.get(extrato.size() - 1);
 
                     modeloTabela.addRow(new Object[]{
-                            ultimaTransacao.getData(),
+                            ultimaTransacao.getData().format(formatadorData),
                             ultimaTransacao.getTipoOperacao(),
-                            ultimaTransacao.getValor(),
+                            String.format("%.2f", ultimaTransacao.getValor()),
                             ultimaTransacao.getOrigemDestino()
                     });
+
+                    JOptionPane.showMessageDialog(null, String.format("Rendimento aplicado! Novo saldo: R$ %.2f", usuarioLogado.getContaPoupanca().getSaldo()), "Rendimento", JOptionPane.INFORMATION_MESSAGE);
                 }
             }
         });
@@ -351,18 +355,23 @@ public class TelaPrincipalPoupanca extends JPanel {
         painelContaPoupanca.add(painelAcoes);
         add(painelContaPoupanca, BorderLayout.NORTH);
 
-        modeloTabela = new DefaultTableModel();
+        modeloTabela = new DefaultTableModel() {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
 
         modeloTabela.addColumn("Data/Hora");
         modeloTabela.addColumn("Operação");
-        modeloTabela.addColumn("Valor(R$)");
+        modeloTabela.addColumn("Valor (R$)");
         modeloTabela.addColumn("De / Para");
 
         for (Transacao transacaoAtual : usuarioLogado.getContaPoupanca().getExtrato()){
             modeloTabela.addRow(new Object[]{
-                    transacaoAtual.getData(),
+                    transacaoAtual.getData().format(formatadorData),
                     transacaoAtual.getTipoOperacao(),
-                    transacaoAtual.getValor(),
+                    String.format("%.2f", transacaoAtual.getValor()),
                     transacaoAtual.getOrigemDestino()
             });
         }
@@ -371,7 +380,7 @@ public class TelaPrincipalPoupanca extends JPanel {
         tabelaExtrato.setRowHeight(60);
 
         JScrollPane painelRolagem = new JScrollPane(tabelaExtrato);
-        javax.swing.border.TitledBorder bordaExtrato = BorderFactory.createTitledBorder("Histórico transação");
+        javax.swing.border.TitledBorder bordaExtrato = BorderFactory.createTitledBorder("Histórico de transações");
         bordaExtrato.setTitleFont(new Font("Arial", Font.ITALIC, 16));
 
         painelRolagem.setBorder(bordaExtrato);
@@ -382,7 +391,7 @@ public class TelaPrincipalPoupanca extends JPanel {
     private void desenharPainelSemConta(Usuario usuarioLogado){
         painelSemUsuario = new JPanel();
         painelSemUsuario.setLayout(new BoxLayout(painelSemUsuario, BoxLayout.Y_AXIS));
-        painelSemUsuario.setBorder(BorderFactory.createTitledBorder("Olá, " + usuarioLogado.getNome() + ", você não possui uma conta poupanca!"));
+        painelSemUsuario.setBorder(BorderFactory.createTitledBorder("Olá, " + usuarioLogado.getNome() + ", você não possui uma conta poupança!"));
 
         JLabel textoCriarConta = new JLabel("Deseja criar uma conta poupança? ");
         textoCriarConta.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -418,7 +427,7 @@ public class TelaPrincipalPoupanca extends JPanel {
                     repaint();
 
                 } else {
-                    JOptionPane.showMessageDialog(null, "Já possuis uma conta poupança!", "[ERRO]", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(null, "Já possui uma conta poupança!", "[ERRO]", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });

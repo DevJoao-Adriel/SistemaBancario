@@ -71,7 +71,6 @@ public class TelaPrincipal extends JFrame {
 
         add(painelCima, BorderLayout.NORTH);
 
-        // Instancia o controlador e o painelCentro ANTES de passá-los para as telas filhas
         controlador = new CardLayout();
         painelCentro = new JPanel(controlador);
 
