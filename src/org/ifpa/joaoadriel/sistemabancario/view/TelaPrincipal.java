@@ -1,6 +1,7 @@
 package org.ifpa.joaoadriel.sistemabancario.view;
 
 import org.ifpa.joaoadriel.sistemabancario.domain.Banco;
+import org.ifpa.joaoadriel.sistemabancario.domain.GerenciadorCSV;
 import org.ifpa.joaoadriel.sistemabancario.domain.Usuario;
 
 import javax.swing.*;
@@ -15,10 +16,11 @@ public class TelaPrincipal extends JFrame {
     private JPanel painelCentro;
     private JPanel painelBtnCentro;
     private JPanel painelBtnDireita;
-    private JPanel painelFantasmaEsquerda;
+    private JPanel painelBtnEsquerda;
     private JButton btnContaCorrente;
     private JButton btnContaPoupanca;
     private JButton btnSairConta;
+    private JButton btnDeletarConta;
     private CardLayout controlador;
 
     public TelaPrincipal(Banco banco, Usuario usuarioLogado) {
@@ -35,42 +37,73 @@ public class TelaPrincipal extends JFrame {
         painelCima.setLayout(new BorderLayout());
         painelCima.setBackground(Color.DARK_GRAY);
 
+        painelBtnEsquerda = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        painelBtnEsquerda.setOpaque(false);
+        painelBtnEsquerda.setPreferredSize(new Dimension(160, 40));
+
         painelBtnCentro = new JPanel(new FlowLayout(FlowLayout.CENTER));
         painelBtnCentro.setOpaque(false);
 
-        painelBtnDireita = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        painelBtnDireita = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         painelBtnDireita.setOpaque(false);
-        painelBtnDireita.setPreferredSize(new Dimension(150, 40));
+        painelBtnDireita.setPreferredSize(new Dimension(160, 40));
 
-        painelFantasmaEsquerda = new JPanel();
-        painelFantasmaEsquerda.setOpaque(false);
-        painelFantasmaEsquerda.setPreferredSize(new Dimension(150, 40));
-
+        btnDeletarConta = new JButton("Deletar Contas");
         btnContaCorrente = new JButton("Conta Corrente");
         btnContaPoupanca = new JButton("Conta Poupança");
         btnSairConta = new JButton("Sair da sua conta");
 
+        btnDeletarConta.setBackground(new Color(200, 40, 40));
+        btnDeletarConta.setForeground(Color.WHITE);
+        btnDeletarConta.setFocusPainted(false);
+        btnDeletarConta.setOpaque(true);
+
+        painelBtnEsquerda.add(btnDeletarConta);
+
         painelBtnCentro.add(btnContaCorrente);
         painelBtnCentro.add(btnContaPoupanca);
-        painelBtnCentro.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         painelBtnDireita.add(btnSairConta);
 
-        painelCima.add(painelFantasmaEsquerda, BorderLayout.WEST);
+        painelCima.add(painelBtnEsquerda, BorderLayout.WEST);
         painelCima.add(painelBtnCentro, BorderLayout.CENTER);
         painelCima.add(painelBtnDireita, BorderLayout.EAST);
 
         add(painelCima, BorderLayout.NORTH);
 
-        TelaPrincipalCorrente telaPrincipalCorrente = new TelaPrincipalCorrente(banco, usuarioLogado, controlador, painelCentro);
-        TelaPrincipalPoupanca telaPrincipalPoupanca = new TelaPrincipalPoupanca(banco, usuarioLogado, controlador, painelCentro);
-
+        // Instancia o controlador e o painelCentro ANTES de passá-los para as telas filhas
         controlador = new CardLayout();
         painelCentro = new JPanel(controlador);
 
+        TelaPrincipalCorrente telaPrincipalCorrente = new TelaPrincipalCorrente(banco, usuarioLogado, controlador, painelCentro);
+        TelaPrincipalPoupanca telaPrincipalPoupanca = new TelaPrincipalPoupanca(banco, usuarioLogado, controlador, painelCentro);
+
         painelCentro.add(telaPrincipalCorrente, "telaPrincipalCorrente");
         painelCentro.add(telaPrincipalPoupanca, "telaPrincipalPoupanca");
-        painelCentro.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        btnDeletarConta.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                if (((usuarioLogado.getContaCorrente() != null) && (usuarioLogado.getContaCorrente().getSaldo() > 0)) || ((usuarioLogado.getContaPoupanca() != null) && (usuarioLogado.getContaPoupanca().getSaldo() > 0))){
+                    JOptionPane.showMessageDialog(null, "Você não pode fazer essa operação, você possui saldo em alguma das suas contas, saque ou transfira seu saldo para poder deletar sua conta", "Aviso", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+
+                int resp = JOptionPane.showConfirmDialog(null, "Deseja deletar sua conta permanentemente? esta opção é irreversível!", "Deletar conta", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+
+                if (resp == JOptionPane.YES_OPTION){
+
+                    boolean sucesso = banco.deletarUsuarios(usuarioLogado);
+                    if (sucesso){
+                        GerenciadorCSV.salvarContas(banco);
+                        GerenciadorCSV.salvarExtrato(banco);
+
+                        btnSairConta.doClick();
+                    }
+                }
+            }
+        });
 
         btnContaCorrente.addActionListener(new ActionListener() {
             @Override

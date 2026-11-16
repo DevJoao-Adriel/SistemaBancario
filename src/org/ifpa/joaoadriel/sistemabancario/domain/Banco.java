@@ -1,5 +1,6 @@
 package org.ifpa.joaoadriel.sistemabancario.domain;
 
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,5 +43,13 @@ public class Banco {
 
     public List<Usuario> getUsuarios() {
         return usuarios;
+    }
+
+    public boolean deletarUsuarios(Usuario usuarioLogado){
+        if (((usuarioLogado.getContaCorrente() != null) && (usuarioLogado.getContaCorrente().getSaldo() > 0)) || ((usuarioLogado.getContaPoupanca() != null) && (usuarioLogado.getContaPoupanca().getSaldo() > 0))){
+            return false;
+        }
+        usuarios.remove(usuarioLogado);
+        return true;
     }
 }
