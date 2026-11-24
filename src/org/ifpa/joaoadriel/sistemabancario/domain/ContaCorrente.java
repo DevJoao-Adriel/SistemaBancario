@@ -5,10 +5,12 @@ import java.time.LocalDateTime;
 public class ContaCorrente extends Conta implements Tributavel {
     private double limiteChequeEspecial;
 
+    //construtor para delimitar o cheque especial existente
     public ContaCorrente(Usuario titular, String chavePix, double saldo) {
         this(titular, chavePix, saldo, 500.00);
     }
 
+    //construtor sobrecarregado para cadastrar uma conta corrente
     public ContaCorrente(Usuario titular, String chavePix, double saldo, double limiteChequeEspecial) {
         super(titular, chavePix, saldo);
         this.limiteChequeEspecial = limiteChequeEspecial;

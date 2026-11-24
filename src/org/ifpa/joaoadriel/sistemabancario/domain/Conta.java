@@ -9,6 +9,7 @@ public abstract class Conta {
     protected double saldo;
     private List<Transacao> extrato;
 
+    //a classe conta fica responsavel pelas caracteristicas de um usuario como o tipo de conta que ele vai ter (corrente/poupanca) e também saldo, extratos e etc
     public Conta(Usuario titular, String chavePix, double saldo) {
         this.titular = titular;
         this.chavePix = chavePix;

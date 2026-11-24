@@ -10,6 +10,5 @@ public class SistemaBancarioTeste {
         GerenciadorCSV.carregarContas(bancoIfpa);
         GerenciadorCSV.carregarExtrato(bancoIfpa);
         TelaInicial telaInicial = new TelaInicial(bancoIfpa);
-
     }
 }
